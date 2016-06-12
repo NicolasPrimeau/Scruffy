@@ -1,10 +1,21 @@
+CUR_STATE = null;
+NEXT_STATE = null;
+
 function Ai() {
+
     this.init = function() {
-        
+        $.ajax({
+            url:'/api/initialize',
+            type:'post',
+            success:function(){}
+    });
     }
 
     this.restart = function() {
-
+        $.ajax({
+            url:'/api/restart',
+            type:'post',
+            success:function(){}
     }
 
     this.step = function(grid) {
@@ -25,6 +36,8 @@ function Ai() {
         //              Method returns true if you can move to that direction, false otherwise.
 
         // sample AI:
+        console.log(grid)
+
         if (this.foo == null) this.foo = 0;
         return this.foo++ % 4;
     }
