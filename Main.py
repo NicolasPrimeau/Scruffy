@@ -102,7 +102,7 @@ def restart():
 
     database = client["AI2048"]
     scores = database.scores
-    scores.insert_one({"reward": reward, "time": datetime.datetime.now()})
+    scores.insert_one({"reward": -reward, "time": datetime.datetime.now()})
 
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501

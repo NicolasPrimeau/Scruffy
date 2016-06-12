@@ -17,13 +17,11 @@ function Ai() {
           success: function( data ) {},
           dataType: "json"
         });
-        document.getElementsByClassName("retry-button")[0].click();
     }
 
     this.step = function(grid) {
         if ($("div.game-message.game-over p").text() != "") {
-            console.log("h")
-            this.restart();
+            document.getElementsByClassName("retry-button")[0].click();
             return 0;
         }
         // This method is called on every update.
