@@ -1,6 +1,7 @@
 from flask import Flask, request, Response
 import json
 import random
+import datetime
 from pymongo import MongoClient
 
 app = Flask(__name__)
@@ -98,6 +99,11 @@ def restart():
     next_state = request.json["next_state"]
     reward = request.json["reward"]
     action_taken = request.json["action_taken"]
+
+    database = client["AI2048"]
+    scores = database.scores
+    scores.insert_one({"reward": reward, "time": datetime.datetime.now()})
+
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
     reward_update(state, float(reward), next_state, action_taken)
