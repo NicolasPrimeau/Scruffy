@@ -1,5 +1,5 @@
 CUR_STATE = null;
-CUR_STATE_REWARD = 0;
+GLOBAL_MAX_VAL = 0;
 ACTION_TAKEN = null;
 
 function Ai() {
@@ -9,14 +9,23 @@ function Ai() {
     }
 
     this.restart = function() {
-        $.ajax({
-          type: "POST",
-          contentType: "application/json; charset=utf-8",
-          url: "http://192.168.0.104:5000/api/restart",
-          data: JSON.stringify({"state": CUR_STATE, "next_state": CUR_STATE, "reward": -CUR_STATE_REWARD, "action_taken": ACTION_TAKEN}),
-          success: function( data ) {},
-          dataType: "json"
-        });
+        if (CUR_STATE != null) {
+            $.ajax({
+              type: "POST",
+              contentType: "application/json; charset=utf-8",
+              url: "http://192.168.0.104:5000/api/restart",
+              data: JSON.stringify({"state": CUR_STATE, 
+                                    "next_state": CUR_STATE, 
+                                    "reward": -GLOBAL_MAX_VAL, 
+                                    "action_taken": ACTION_TAKEN}),
+              success: function( data ) {},
+              dataType: "json"
+            });
+        }
+
+        CUR_STATE = null;
+        GLOBAL_MAX_VAL = 0;
+        ACTION_TAKEN = null;
     }
 
     this.step = function(grid) {
@@ -41,15 +50,19 @@ function Ai() {
         //              Method returns true if you can move to that direction, false otherwise.
 
         // sample AI:
+
+        // Compute current state, and maximum cell of current state 
         var state = {};
-        var reward = 0;
+        var max_val = 0;
         var cloned = grid.copy();
         for (var i = 0; i < cloned.cells.length; i++) {
             for (var j = 0; j < cloned.cells[i].length; j++) {
                 cell = cloned.cells[i][j];
                 cell_name = "" + i + "_" + j
                 state[cell_name] = cell != null ? cell.value : 0
-                reward += cell != null ? cell.value : 0
+                if (state[cell_name] > max_val) {
+                    max_val = state[cell_name]
+                }
             }
         }
 
@@ -58,14 +71,17 @@ function Ai() {
               type: "POST",
               contentType: "application/json; charset=utf-8",
               url: "http://192.168.0.104:5000/api/reward_update",
-              data: JSON.stringify({"state": CUR_STATE, "next_state": CUR_STATE, "reward": reward, "action_taken": ACTION_TAKEN}),
+              data: JSON.stringify({"state": CUR_STATE,
+                                    "next_state": state, 
+                                    "reward": max_val > GLOBAL_MAX_VAL ? max_val : 0, 
+                                    "action_taken": ACTION_TAKEN}),
               success: function( data ) {},
               dataType: "json"
             });
         }
 
         CUR_STATE = state;
-        CUR_STATE_REWARD = reward
+        GLOBAL_MAX_VAL = max_val
 
         var illegals = [];
         for(var i=0; i<4; i+=1) {
@@ -91,9 +107,4 @@ function Ai() {
         ACTION_TAKEN = action
         return action
     }
-}
-
-function compute_reward(state) {
-
-
 }
