@@ -1,7 +1,8 @@
-from flask import Flask, request, Response
+from flask import Flask, request, Response, render_template
 import json
 import random
 import datetime
+import Scruffy.Analytics
 from pymongo import MongoClient
 
 app = Flask(__name__)
@@ -28,12 +29,23 @@ def after_request(response):
 
 @app.route("/")
 def home():
-    return "<h1><a href=\"/api\">This ain't a website yo</a></h1>"
+    return "<h1>Whatup</h1>"
+
+
+@app.route("/analytics")
+def analytics():
+    return render_template('analytics.html')
+
+
+@app.route("/analytics/get_scores", methods=['GET'])
+def get_reward_data():
+    return Scruffy.Analytics.get_reward_data()
 
 
 @app.route("/api")
 def api_home():
-    return "<ul><li>/api/initialize</li><li>/api/next_action</li><li>/api/reward_update</li></ul>"
+    return "<ul><li>/api/get_script</li><li>/api/initialize</li><li>/api/restart</li>" \
+           "<li>/api/next_action</li><li>/api/reward_update</li></ul>"
 
 
 @app.route("/api/initialize", methods=['POST'])
@@ -68,7 +80,11 @@ def update_reward():
     state = request.json["state"]
     next_state = request.json["next_state"]
     reward = request.json["reward"]
-    action_taken = request.json["action_taken"]
+    try:
+        action_taken = request.json["action_taken"]
+    except KeyError:
+        print(request.json)
+
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
     reward_update(state, float(reward), next_state, action_taken)
@@ -99,10 +115,11 @@ def restart():
     next_state = request.json["next_state"]
     reward = request.json["reward"]
     action_taken = request.json["action_taken"]
+    score = request.json["score"]
 
     database = client["AI2048"]
     scores = database.scores
-    scores.insert_one({"reward": -reward, "time": datetime.datetime.now()})
+    scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
 
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
@@ -113,6 +130,13 @@ def restart():
 @app.route("/api/get_script", methods=["GET"])
 def get_script():
     with open('script.js', 'r') as myfile:
+        data = myfile.read()
+    return Response(data, mimetype='application/javascript')
+
+
+@app.route("/static/analytics.js", methods=["GET"])
+def get_analytics():
+    with open('static/analytics.js', 'r') as myfile:
         data = myfile.read()
     return Response(data, mimetype='application/javascript')
 
@@ -130,10 +154,13 @@ def get_e_greedy_action(actions, illegals):
                 keys.append(key)
     else:
         keys = list(actions.keys())
+
     keys = [x for x in keys if x not in illegals]
+
     if len(keys) == 0:
-        keys = [x for x in list(actions.keys()) if x not in illegals]
-    return random.choice(keys)
+        keys = [x for x in [str(y) for y in ACTIONS] if x not in illegals]
+
+    return random.choice(keys) if len(keys) > 0 else "1"
 
 
 def create_new_entry(state, collection):

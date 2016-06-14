@@ -1,5 +1,6 @@
 CUR_STATE = null;
 GLOBAL_MAX_VAL = 0;
+SCORE = 0;
 ACTION_TAKEN = null;
 
 function Ai() {
@@ -17,7 +18,9 @@ function Ai() {
               data: JSON.stringify({"state": CUR_STATE, 
                                     "next_state": CUR_STATE, 
                                     "reward": -GLOBAL_MAX_VAL, 
-                                    "action_taken": ACTION_TAKEN}),
+                                    "action_taken": ACTION_TAKEN,
+                                    "score": SCORE
+                                    }),
               success: function( data ) {},
               dataType: "json"
             });
@@ -26,6 +29,7 @@ function Ai() {
         CUR_STATE = null;
         GLOBAL_MAX_VAL = 0;
         ACTION_TAKEN = null;
+        SCORE = 0;
     }
 
     this.step = function(grid) {
@@ -55,18 +59,20 @@ function Ai() {
         var state = {};
         var max_val = 0;
         var cloned = grid.copy();
+        SCORE = 0;
         for (var i = 0; i < cloned.cells.length; i++) {
             for (var j = 0; j < cloned.cells[i].length; j++) {
                 cell = cloned.cells[i][j];
                 cell_name = "" + i + "_" + j
                 state[cell_name] = cell != null ? cell.value : 0
                 if (state[cell_name] > max_val) {
-                    max_val = state[cell_name]
+                    max_val = state[cell_name];
                 }
+                SCORE += state[cell_name];
             }
         }
 
-        if (CUR_STATE != null) {
+        if (CUR_STATE != null && ACTION_TAKEN != null) {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
@@ -79,9 +85,6 @@ function Ai() {
               dataType: "json"
             });
         }
-
-        CUR_STATE = state;
-        GLOBAL_MAX_VAL = max_val
 
         var illegals = [];
         for(var i=0; i<4; i+=1) {
@@ -104,6 +107,9 @@ function Ai() {
               },
               dataType: "json"
             });
+
+        CUR_STATE = state;
+        GLOBAL_MAX_VAL = max_val
         ACTION_TAKEN = action
         return action
     }
