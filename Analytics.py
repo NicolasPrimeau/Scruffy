@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import pymongo
 import json
 
 client = None
@@ -14,6 +15,6 @@ def get_reward_data():
         initialize()
     database = client["AI2048"]
     scores = database.scores
-    return json.dumps([{"time": x["time"], "score": x["reward"]} for x in scores.find()]), 201
+    return json.dumps([{"time": x["time"], "score": x["reward"]} for x in scores.find().sort('time', pymongo.ASCENDING)]), 201
 
 

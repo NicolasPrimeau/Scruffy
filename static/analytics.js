@@ -5,7 +5,7 @@ $(function () {
         var scores_preprocess = JSON.parse(data);
         var scores = [];
         for (var i=0; i<scores_preprocess.length; i+=1) {
-            scores.push([scores_preprocess[i].time, scores_preprocess[i].score]);
+            scores.push([i, scores_preprocess[i].score]);
         }
 
         $('#container').highcharts({
@@ -14,7 +14,7 @@ $(function () {
                 zoomType: 'xy'
             },
             title: {
-                text: 'Height Versus Weight of 507 Individuals by Gender'
+                text: 'Scores'
             },
             xAxis: {
                 title: {
@@ -48,10 +48,6 @@ $(function () {
                                 enabled: false
                             }
                         }
-                    },
-                    tooltip: {
-                        headerFormat: '<b>{series.name}</b><br>',
-                        pointFormat: '{point.x} cm, {point.y} kg'
                     }
                 }
             },

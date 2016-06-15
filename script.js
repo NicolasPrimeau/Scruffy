@@ -6,7 +6,7 @@ ACTION_TAKEN = null;
 function Ai() {
 
     this.init = function() {
-        $.post('http://192.168.0.104:5000/api/initialize', function( data ) {});
+        $.post('/api/initialize', function( data ) {});
     }
 
     this.restart = function() {
@@ -14,7 +14,7 @@ function Ai() {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "http://192.168.0.104:5000/api/restart",
+              url: "/api/restart",
               data: JSON.stringify({"state": CUR_STATE, 
                                     "next_state": CUR_STATE, 
                                     "reward": -GLOBAL_MAX_VAL, 
@@ -76,7 +76,7 @@ function Ai() {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "http://192.168.0.104:5000/api/reward_update",
+              url: "/api/reward_update",
               data: JSON.stringify({"state": CUR_STATE,
                                     "next_state": state, 
                                     "reward": max_val > GLOBAL_MAX_VAL ? max_val : 0, 
@@ -100,7 +100,7 @@ function Ai() {
               async: false,
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "http://192.168.0.104:5000/api/get_action",
+              url: "/api/get_action",
               data: JSON.stringify({"state": CUR_STATE, "illegals": illegals}),
               success: function( data ) {
                 action = data["action"]
