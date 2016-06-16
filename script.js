@@ -3,10 +3,12 @@ GLOBAL_MAX_VAL = 0;
 SCORE = 0;
 ACTION_TAKEN = null;
 
+IP = "http://52.207.214.85:5000"
+
 function Ai() {
 
     this.init = function() {
-        $.post('/api/initialize', function( data ) {});
+        $.post(IP + '/api/initialize', function( data ) {});
     }
 
     this.restart = function() {
@@ -14,7 +16,7 @@ function Ai() {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "/api/restart",
+              url: IP + "/api/restart",
               data: JSON.stringify({"state": CUR_STATE, 
                                     "next_state": CUR_STATE, 
                                     "reward": -GLOBAL_MAX_VAL, 
@@ -76,7 +78,7 @@ function Ai() {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "/api/reward_update",
+              url: IP + "/api/reward_update",
               data: JSON.stringify({"state": CUR_STATE,
                                     "next_state": state, 
                                     "reward": max_val > GLOBAL_MAX_VAL ? max_val : 0, 
@@ -100,7 +102,7 @@ function Ai() {
               async: false,
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "/api/get_action",
+              url: IP + "/api/get_action",
               data: JSON.stringify({"state": CUR_STATE, "illegals": illegals}),
               success: function( data ) {
                 action = data["action"]
