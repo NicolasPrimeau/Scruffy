@@ -3,7 +3,7 @@ GLOBAL_MAX_VAL = 0;
 SCORE = 0;
 ACTION_TAKEN = null;
 
-IP = "http://52.207.214.85:5000"
+IP = "http://107.22.153.253:5000"
 
 function Ai() {
 
