@@ -2,6 +2,7 @@ import json
 import random
 import datetime
 import Analytics
+from flask import Flask, request, Response, render_template
 from pybrain.rl.learners.valuebased import NFQ
 from pybrain.rl.learners.valuebased import ActionValueNetwork
 from pybrain.rl.agents import LearningAgent
@@ -9,10 +10,8 @@ from pymongo import MongoClient
 import pickle
 from bson.binary import Binary
 
-app = None
-if __name__ == "__main__":
-    from flask import Flask, request, Response, render_template
-    app = Flask(__name__)
+
+app = Flask(__name__)
 
 # Up right down Left
 ACTIONS = [0, 1, 2, 3]
