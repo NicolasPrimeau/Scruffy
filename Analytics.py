@@ -37,6 +37,7 @@ def window_averages(data, window=100):
             ret_list.append({"time": i["time"], "score": float(avg)/cnt})
             last = None
             cnt = 0
+        last = i
     if last is not None:
         ret_list.append({"time": last["time"], "score": float(avg)/cnt})
     return ret_list
