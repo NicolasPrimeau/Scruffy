@@ -103,16 +103,6 @@ def get_next_action_handler():
 
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
-    """"
-    if agent or client is None:
-        return
-    state = request.json["state"]
-    reward = request.json["reward"]
-
-    if state is None:
-        return json.dumps("Reward update is not acceptable"), 501
-    reward_update(float(reward))
-    """
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -123,11 +113,7 @@ def reward_update(action_reward):
 
 @app.route("/api/restart", methods=['POST'])
 def restart_handler():
-    """
-    reward = request.json["reward"]
-    score = request.json["score"]
-    restart(reward, score)
-    """
+    initialize_network(True)
     return json.dumps({"game_id": game_id}), 201
 
 
