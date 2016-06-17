@@ -15,6 +15,7 @@ GAMMA = 0.9
 Exploration = 0.05
 
 client = None
+game_id = 0
 
 
 @app.after_request
@@ -48,10 +49,11 @@ def api_home():
 
 @app.route("/api/initialize", methods=['POST'])
 def initialize():
-    global client, active_count, game_id
+    global client, game_id
     if client is None:
         client = MongoClient()
         random.seed()
+        game_id += 1
     return (json.dumps({"game_id": game_id}), 201) if client is not None else (json.dumps("Error in client setup"), 501)
 
 
