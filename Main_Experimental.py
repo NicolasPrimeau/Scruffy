@@ -8,6 +8,7 @@ from pybrain.rl.learners.valuebased import ActionValueNetwork
 from pybrain.rl.agents import LearningAgent
 from pymongo import MongoClient
 import pickle
+from bson.binary import Binary
 
 app = Flask(__name__)
 
@@ -73,9 +74,12 @@ def initialize_network():
         record = client["AI2048"].networks.find_one()
         if record is None:
             controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
-            agent = LearningAgent(controller, NFQ())
         else:
-            agent = pickle.load(record["agent"])
+            controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
+            controller.network = pickle.loads(record["data"])
+            controller.network.sorted = False
+            controller.network.sortModules()
+        agent = LearningAgent(controller, NFQ())
     agent.newEpisode()
 
 
@@ -117,6 +121,17 @@ def restart(reward, score):
     reward_update(float(reward))
     agent.newEpisode()
     agent.learn()
+    save_agent()
+
+
+def save_agent():
+    global agent, client
+    if agent is None or client is None:
+        return
+    client["AI2048"].networks.update_one({"network": 1},
+                                         {"$set": {"data": Binary(pickle.dumps(agent.module.network))}
+                                          },
+                                         upsert=True)
 
 
 @app.route("/api/get_script", methods=["GET"])
