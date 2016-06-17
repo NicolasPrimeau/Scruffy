@@ -59,6 +59,7 @@ def initialize():
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
+    global client
     if client is None:
         initialize()
     state = request.json["state"]
