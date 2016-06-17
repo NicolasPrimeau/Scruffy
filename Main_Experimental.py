@@ -1,4 +1,3 @@
-from flask import Flask, request, Response, render_template
 import json
 import random
 import datetime
@@ -10,7 +9,10 @@ from pymongo import MongoClient
 import pickle
 from bson.binary import Binary
 
-app = Flask(__name__)
+app = None
+if __name__ == "__main__":
+    from flask import Flask, request, Response, render_template
+    app = Flask(__name__)
 
 # Up right down Left
 ACTIONS = [0, 1, 2, 3]
@@ -69,11 +71,22 @@ def initialize_network():
         record = client["AI2048"].networks.find_one()
         if record is None:
             controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
+            controller.network.is_loaded_correctly = True
         else:
             controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
             controller.network = pickle.loads(record["data"])
             controller.network.sorted = False
             controller.network.sortModules()
+            try:
+                if not controller.network.is_loaded_correctly:
+                    print("Pre-existing neural network data corrupted, creating new")
+                    controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
+                    controller.network.is_loaded_correctly = True
+            except AttributeError:
+                print("Neural Network did not load correctly, creating new")
+                controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
+                controller.network.is_loaded_correctly = True
+            controller.network.is_loaded_correctly = True
         agent = LearningAgent(controller, NFQ())
     agent.newEpisode()
 
@@ -86,6 +99,7 @@ def get_next_action_handler():
 
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
+    """"
     if agent or client is None:
         return
     state = request.json["state"]
@@ -94,6 +108,7 @@ def update_reward_handler():
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
     reward_update(float(reward))
+    """
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -104,15 +119,18 @@ def reward_update(action_reward):
 
 @app.route("/api/restart", methods=['POST'])
 def restart_handler():
+    """s
     reward = request.json["reward"]
     score = request.json["score"]
     restart(reward, score)
+    """
     return json.dumps({"game_id": game_id}), 201
 
 
 def restart(reward, score):
     global agent
     client["AI2048"].neural_scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
+    client["AI2048"].misc.update_one({"name": "high_score"}, {"$max": {"value": score}}, upsert=True)
     reward_update(float(reward))
     agent.newEpisode()
     agent.learn()
@@ -147,6 +165,8 @@ def get_next_action(state):
     global agent
     if state is None:
         return random.choice(ACTIONS)
+    if agent is None:
+        initialize_network()
     agent.integrateObservation(map_state_to_inputs(state))
     if agent is None:
         initialize_network()
@@ -163,5 +183,13 @@ def map_state_to_inputs(state):
     return state_mapping
 
 
+def get_high_score():
+    global client
+    if client is None:
+        return 0
+    return client["AI2048"].misc.find_one({"name": "high_score"})["value"]
+
+
 if __name__ == "__main__":
+    from flask import Flask, request, Response, render_template
     app.run(host="0.0.0.0", threaded=True)
