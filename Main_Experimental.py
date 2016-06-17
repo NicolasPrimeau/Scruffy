@@ -62,7 +62,7 @@ def initialize():
 
 
 def initialize_client():
-    global client
+    global client, game_id
     if client is None:
         client = MongoClient()
         random.seed()
