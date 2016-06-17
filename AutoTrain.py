@@ -1,24 +1,29 @@
 import Game
 import Main
-import time
+import datetime
 
 GLOBAL_MAX_VALUE = 0
 SCORE = 0
 ACTION_TAKEN = None
 CUR_STATE = None
 
+LOST = 0
 STEP_TIME = 0.1
+
 
 def main():
     global STEP_TIME
     Main.initialize()
+    Game.restart()
     cnter = 0
+    print(str(datetime.datetime.now()) + " Still Alive")
     while True:
         step()
         cnter +=1
-        if cnter > 10:
-           cnter = 0
-           print("Still Alive")
+        if cnter > 100:
+            cnter = 0
+            print(str(datetime.datetime.now()) + " Still Alive, lost " + str(LOST))
+
 
 def restart():
     global GLOBAL_MAX_VALUE, SCORE, ACTION_TAKEN, CUR_STATE
@@ -31,7 +36,10 @@ def restart():
 
 
 def step():
+    global LOST
     if Game.game_over():
+        print("Game Over")
+        LOST += 1
         restart()
         return
     global CUR_STATE, ACTION_TAKEN, GLOBAL_MAX_VALUE
@@ -57,7 +65,6 @@ def step():
     CUR_STATE = state
     ACTION_TAKEN = action
     GLOBAL_MAX_VALUE = max_val
-
     Game.do_action(action)
 
 if __name__ == "__main__":

@@ -10,6 +10,8 @@ DIRECTIONS = [0, 1, 2, 3]
 
 
 def do_action(direction):
+    direction = int(direction)
+    global GAME_BOARD
     if direction not in DIRECTIONS:
         return
 
@@ -84,7 +86,6 @@ def do_action(direction):
                         cols -= 1
 
     spawn_cell()
-
     return game_over()
 
 
@@ -169,7 +170,10 @@ def spawn_cell():
     val = 2
     if random.uniform(0, 1) > 0.9:
         val = 4
-    selection = random.choice(get_empties())
+    empties = get_empties()
+    if len(empties) == 0:
+        return
+    selection = random.choice(empties)
     GAME_BOARD[selection[0]][selection[1]] = val
 
 
