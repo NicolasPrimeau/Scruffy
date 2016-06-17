@@ -55,18 +55,23 @@ def api_home():
 
 @app.route("/api/initialize", methods=['POST'])
 def initialize():
-    global agent, client, game_id
+    global game_id, client
+    initialize_client()
+    initialize_network()
+    return (json.dumps({"game_id": game_id}), 201) if client is not None else (json.dumps("Error in client setup"), 501)
+
+
+def initialize_client():
+    global client
     if client is None:
         client = MongoClient()
         random.seed()
         game_id += 1
-    if agent is None:
-        initialize_network()
-    return (json.dumps({"game_id": game_id}), 201) if client is not None else (json.dumps("Error in client setup"), 501)
 
 
 def initialize_network():
     global agent
+    initialize_client()
     if agent is None:
         record = client["AI2048"].networks.find_one()
         if record is None:
@@ -119,7 +124,7 @@ def reward_update(action_reward):
 
 @app.route("/api/restart", methods=['POST'])
 def restart_handler():
-    """s
+    """
     reward = request.json["reward"]
     score = request.json["score"]
     restart(reward, score)
@@ -128,7 +133,9 @@ def restart_handler():
 
 
 def restart(reward, score):
-    global agent
+    global agent, client
+    if client is None:
+        initialize_client()
     client["AI2048"].neural_scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
     client["AI2048"].misc.update_one({"name": "high_score"}, {"$max": {"value": score}}, upsert=True)
     reward_update(float(reward))
@@ -139,8 +146,10 @@ def restart(reward, score):
 
 def save_agent():
     global agent, client
-    if agent is None or client is None:
+    if agent is None:
         return
+    if client is None:
+        initialize_client()
     client["AI2048"].networks.update_one({"network": 1},
                                          {"$set": {"data": Binary(pickle.dumps(agent.module.network))}
                                           },
