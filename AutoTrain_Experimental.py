@@ -23,7 +23,7 @@ def main():
 
 def restart():
     global CUR_STATE
-    print(str(datetime.datetime.now()) + " Still Alive, High Score: " + str(MAX_SCORE) +", Max Value: " + str(GLOBAL_MAX_VALUE))
+    print(str(datetime.datetime.now()) + " Still Alive, High Score: " + str(MAX_SCORE) +", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE))
     Main_Experimental.restart(-GLOBAL_MAX_VALUE, SCORE)
     Game.restart()
     CUR_STATE = None
