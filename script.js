@@ -77,7 +77,7 @@ function Ai() {
             $.ajax({
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: IP + "/api/reward_update",
+              url: IP + "http://52.207.214.85:5000/api/reward_update",
               data: JSON.stringify({"state": CUR_STATE,
                                     "next_state": state, 
                                     "reward": max_val > GLOBAL_MAX_VAL ? max_val : 0, 
@@ -102,13 +102,14 @@ function Ai() {
               async: false,
               type: "POST",
               contentType: "application/json; charset=utf-8",
-              url: "/api/get_action",
+              url: IP + "/api/get_action",
               data: JSON.stringify({"state": state, "illegals": illegals}),
               success: function( data ) {
                 action = data["action"]
               },
               dataType: "json"
             });
+
 
         CUR_STATE = state;
         GLOBAL_MAX_VAL = max_val
