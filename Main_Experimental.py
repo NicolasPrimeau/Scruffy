@@ -56,7 +56,7 @@ def api_home():
 def initialize():
     global game_id, client
     initialize_client()
-    initialize_network()
+    initialize_network(True)
     return (json.dumps({"game_id": game_id}), 201) if client is not None else (json.dumps("Error in client setup"), 501)
 
 
@@ -68,10 +68,10 @@ def initialize_client():
         game_id += 1
 
 
-def initialize_network():
+def initialize_network(override=False):
     global agent
     initialize_client()
-    if agent is None:
+    if agent is None or override:
         record = client["AI2048"].networks.find_one()
         if record is None:
             controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
@@ -199,5 +199,4 @@ def get_high_score():
 
 
 if __name__ == "__main__":
-    from flask import Flask, request, Response, render_template
     app.run(host="0.0.0.0", threaded=True)
