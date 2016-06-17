@@ -2,7 +2,7 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import datetime
-import Scruffy.Analytics
+import Analytics
 from pymongo import MongoClient
 
 app = Flask(__name__)
@@ -37,7 +37,7 @@ def analytics():
 
 @app.route("/analytics/get_scores", methods=['GET'])
 def get_reward_data():
-    return Scruffy.Analytics.get_reward_data()
+    return Analytics.get_reward_data()
 
 
 @app.route("/api")
@@ -176,4 +176,4 @@ def create_new_entry(state, collection):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0",threaded=True)
