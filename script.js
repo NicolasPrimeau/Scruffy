@@ -58,11 +58,10 @@ function Ai() {
         // Compute current state, and maximum cell of current state 
         var state = {};
         var max_val = 0;
-        var cloned = grid.copy();
         SCORE = 0;
-        for (var i = 0; i < cloned.cells.length; i++) {
-            for (var j = 0; j < cloned.cells[i].length; j++) {
-                cell = cloned.cells[i][j];
+        for (var i = 0; i < grid.cells.length; i++) {
+            for (var j = 0; j < grid.cells[i].length; j++) {
+                cell = grid.cells[i][j];
                 cell_name = "" + i + "_" + j
                 state[cell_name] = cell != null ? cell.value : 0
                 if (state[cell_name] > max_val) {
@@ -87,6 +86,7 @@ function Ai() {
         }
 
         var illegals = [];
+        var cloned;
         for(var i=0; i<4; i+=1) {
             cloned = grid.copy();
             if(!cloned.move(i)) {
@@ -101,7 +101,7 @@ function Ai() {
               type: "POST",
               contentType: "application/json; charset=utf-8",
               url: "/api/get_action",
-              data: JSON.stringify({"state": CUR_STATE, "illegals": illegals}),
+              data: JSON.stringify({"state": state, "illegals": illegals}),
               success: function( data ) {
                 action = data["action"]
               },

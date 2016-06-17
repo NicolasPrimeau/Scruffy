@@ -7,7 +7,7 @@ from pymongo import MongoClient
 
 app = Flask(__name__)
 
-# Up Down Left Right
+## Up right down Left
 ACTIONS = [0, 1, 2, 3]
 GRID_SIZE = 4
 ALPHA = 0.1
@@ -15,8 +15,6 @@ GAMMA = 0.9
 Exploration = 0.05
 
 client = None
-active_count = 0
-game_id = 0
 
 
 @app.after_request
@@ -53,30 +51,32 @@ def initialize():
     global client, active_count, game_id
     if client is None:
         client = MongoClient()
-        active_count += 1
         random.seed()
-        game_id += 1
     return (json.dumps({"game_id": game_id}), 201) if client is not None else (json.dumps("Error in client setup"), 501)
 
 
 @app.route("/api/get_action", methods=['POST'])
-def get_next_action():
+def get_next_action_handler():
     if client is None:
         initialize()
     state = request.json["state"]
     illegals = request.json["illegals"]
+    return json.dumps({"action": get_next_action(state, illegals)}), 201
+
+
+def get_next_action(state, illegals):
     if state is None:
-        return json.dumps(random.choice(ACTIONS))
+        return random.choice(ACTIONS)
     database = client["AI2048"]
     states = database.states
     record = states.find_one({"state": state})
     if record is None:
         record = create_new_entry(state, states)
-    return json.dumps({"action": get_e_greedy_action(record["actions"], illegals)}), 201
+    return get_e_greedy_action(record["actions"], illegals)
 
 
 @app.route("/api/reward_update", methods=['POST'])
-def update_reward():
+def update_reward_handler():
     state = request.json["state"]
     next_state = request.json["next_state"]
     reward = request.json["reward"]
@@ -110,21 +110,23 @@ def reward_update(state, action_reward, next_state, action_taken):
 
 
 @app.route("/api/restart", methods=['POST'])
-def restart():
+def restart_handler():
     state = request.json["state"]
     next_state = request.json["next_state"]
     reward = request.json["reward"]
     action_taken = request.json["action_taken"]
     score = request.json["score"]
+    restart(state, next_state, reward, action_taken, score)
+    return json.dumps({"game_id": game_id}), 201
 
+
+def restart(state, next_state, reward, action_taken, score):
     database = client["AI2048"]
     scores = database.scores
     scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
-
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
     reward_update(state, float(reward), next_state, action_taken)
-    return json.dumps({"game_id": game_id}), 201
 
 
 @app.route("/api/get_script", methods=["GET"])
