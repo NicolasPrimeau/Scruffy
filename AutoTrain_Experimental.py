@@ -12,18 +12,19 @@ STEP_TIME = 0.1
 
 
 def main():
-    global STEP_TIME
+    global STEP_TIME, MAX_SCORE
     Main_Experimental.initialize()
     Game.restart()
-    cnter = 0
-    print(str(datetime.datetime.now()) + " Still Alive")
+    MAX_SCORE = Main_Experimental.get_high_score()
+    print(str(datetime.datetime.now()) + " Starting up")
     while True:
         step()
 
 
 def restart():
     global CUR_STATE
-    print(str(datetime.datetime.now()) + " Still Alive, High Score: " + str(MAX_SCORE) +", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE))
+    print(str(datetime.datetime.now()) + " Still Alive, High Score: " + str(MAX_SCORE) + ", Max Value: " +
+          str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE))
     Main_Experimental.restart(-GLOBAL_MAX_VALUE, SCORE)
     Game.restart()
     CUR_STATE = None

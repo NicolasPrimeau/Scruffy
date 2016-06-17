@@ -15,12 +15,28 @@ def get_reward_data():
         initialize()
     database = client["AI2048"]
     scores = database.scores
-    return json.dumps([{"time": x["time"], "score": x["reward"]} for x in scores.find().sort('time', pymongo.ASCENDING)]), 201
+    return json.dumps(window_averages(scores.find().sort('time', pymongo.ASCENDING))), 201
 
 
 def get_reward_neural_data():
     if client is None:
         initialize()
     scores = client["AI2048"].neural_scores
-    return json.dumps([{"time": x["time"], "score": x["reward"]} for x in scores.find().sort('time', pymongo.ASCENDING)]), 201
+    return json.dumps(window_averages(scores.find().sort('time', pymongo.ASCENDING))), 201
 
+
+def window_averages(data, window=100):
+    ret_list = list()
+    cnt = 0
+    avg = 0
+    last = None
+    for i in data:
+        avg += i["reward"]
+        cnt += 1
+        if cnt == window:
+            ret_list.append({"time": i["time"], "score": float(avg)/cnt})
+            last = None
+            cnt = 0
+    if last is not None:
+        ret_list.append({"time": last["time"], "score": float(avg)/cnt})
+    return ret_list
