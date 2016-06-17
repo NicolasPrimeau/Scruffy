@@ -14,11 +14,6 @@ app = Flask(__name__)
 
 # Up right down Left
 ACTIONS = [0, 1, 2, 3]
-GRID_SIZE = 4
-ALPHA = 0.1
-GAMMA = 0.9
-Exploration = 0.05
-
 GAME_BOARD_LENGTH = 4
 
 client = None
