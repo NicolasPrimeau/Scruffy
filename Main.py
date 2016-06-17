@@ -59,15 +59,15 @@ def initialize():
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
-    global client
-    if client is None:
-        initialize()
     state = request.json["state"]
     illegals = request.json["illegals"]
     return json.dumps({"action": get_next_action(state, illegals)}), 201
 
 
 def get_next_action(state, illegals):
+    global client
+    if client is None:
+        initialize()
     if state is None:
         return random.choice(ACTIONS)
     database = client["AI2048"]
@@ -86,7 +86,7 @@ def update_reward_handler():
     try:
         action_taken = request.json["action_taken"]
     except KeyError:
-        print(request.json)
+        return
 
     if state is None:
         return json.dumps("Reward update is not acceptable"), 501
@@ -95,6 +95,8 @@ def update_reward_handler():
 
 
 def reward_update(state, action_reward, next_state, action_taken):
+    if client is None:
+        return
     database = client["AI2048"]
     states = database.states
     record = states.find_one({"state": state})
@@ -124,6 +126,8 @@ def restart_handler():
 
 
 def restart(state, next_state, reward, action_taken, score):
+    if client is None:
+        return
     database = client["AI2048"]
     scores = database.scores
     scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
