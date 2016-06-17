@@ -46,7 +46,7 @@ def analytics():
 
 @app.route("/analytics/get_scores", methods=['GET'])
 def get_reward_data():
-    return Analytics.get_reward_data()
+    return Analytics.get_reward_neural_data()
 
 
 @app.route("/api")
