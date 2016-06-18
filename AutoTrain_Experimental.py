@@ -1,4 +1,4 @@
-import Game
+from Scruffy import Game
 import Main_Experimental
 import datetime
 
@@ -23,8 +23,8 @@ def main():
 
 def restart():
     global CUR_STATE, GAMES, GLOBAL_MAX_VALUE, SCORE, REWARD
-    print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) + ", Max Value: " +
-          str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD))
+    print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) +
+          ", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD))
     print("gob max:" + str(GLOBAL_MAX_VALUE))
     Main_Experimental.restart(-GLOBAL_MAX_VALUE, SCORE)
     Game.restart()
@@ -39,6 +39,7 @@ def step():
     global CUR_STATE, GLOBAL_MAX_VALUE, SCORE, MAX_SCORE, REWARD
 
     if CUR_STATE is None:
+        GLOBAL_MAX_VALUE = 0
         CUR_STATE, SCORE = get_state()
 
     illegals = Game.get_illegal_actions()
@@ -47,21 +48,22 @@ def step():
         Main_Experimental.reward_update(-1000)
         REWARD += -1000
         action = Main_Experimental.get_next_action(CUR_STATE)
+
     merged_val = Game.do_action(action)
 
     if Game.game_over():
         print("Game Over")
         restart()
         return
-
-    CUR_STATE, SCORE = get_state()
-    Main_Experimental.reward_update(merged_val)
-    print(merged_val)
-    REWARD += merged_val
-    if GLOBAL_MAX_VALUE < merged_val:
-        GLOBAL_MAX_VALUE = merged_val
-    if SCORE > MAX_SCORE:
-        MAX_SCORE = SCORE
+    else:
+        CUR_STATE, SCORE = get_state()
+        Main_Experimental.reward_update(merged_val)
+        print(merged_val)
+        REWARD += merged_val
+        if GLOBAL_MAX_VALUE < merged_val:
+            GLOBAL_MAX_VALUE = merged_val
+        if SCORE > MAX_SCORE:
+            MAX_SCORE = SCORE
 
 
 def get_state():
