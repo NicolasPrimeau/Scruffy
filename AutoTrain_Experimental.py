@@ -44,8 +44,8 @@ def step():
     illegals = Game.get_illegal_actions()
     action = Main_Experimental.get_next_action(CUR_STATE)
     while action in illegals:
-        Main_Experimental.reward_update(-100000)
-        REWARD += -100000
+        Main_Experimental.reward_update(-1000)
+        REWARD += -1000
         action = Main_Experimental.get_next_action(CUR_STATE)
     merged_val = Game.do_action(action)
 
