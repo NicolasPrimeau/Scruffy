@@ -119,6 +119,8 @@ def update_reward_handler():
 def reward_update(action_reward):
     global agent
     agent.giveReward(action_reward)
+    agent.learn()
+    agent.newEpisode()
 
 
 @app.route("/api/restart", methods=['POST'])
