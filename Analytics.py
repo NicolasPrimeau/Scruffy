@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 import pymongo
 import json
+import numpy as np
 
 client = None
 
@@ -8,6 +9,30 @@ client = None
 def initialize():
     global client
     client = MongoClient()
+
+
+def get_stats():
+    if client is None:
+        initialize()
+    database = client["AI2048"]
+
+    return json.dumps({"max": database.neural_scores.find_one(sort=[("reward", pymongo.DESCENDING)])["reward"],
+                       "count": database.neural_scores.count()})
+
+
+def get_fitted_line():
+    if client is None:
+        initialize()
+    database = client["AI2048"]
+    y = list()
+    x = list()
+    for i in database.neural_scores.find().sort('time', pymongo.ASCENDING):
+        y.append(i["reward"])
+        x.append(i["time"])
+
+    coefs = np.polyfit(x, y, 1)
+    fit = lambda x: x*coefs[0] + coefs[-1]
+    return json.dumps([(x[0], fit(x[0])), (x[-1], fit(x[-1]))])
 
 
 def get_reward_data():
