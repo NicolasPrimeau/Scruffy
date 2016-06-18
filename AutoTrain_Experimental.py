@@ -39,7 +39,7 @@ def step():
     illegals = Game.get_illegal_actions()
     action = Main_Experimental.get_next_action(CUR_STATE)
     while action in illegals:
-        Main_Experimental.reward_update(-100)
+        Main_Experimental.reward_update(-100000)
         action = Main_Experimental.get_next_action(CUR_STATE)
     Game.do_action(action)
 
@@ -52,9 +52,9 @@ def step():
     CUR_STATE, max_val, SCORE = get_state()
     if GLOBAL_MAX_VALUE < max_val:
         GLOBAL_MAX_VALUE = max_val
-        Main_Experimental.reward_update(max_val)
+        Main_Experimental.reward_update(GLOBAL_MAX_VALUE)
     else:
-        Main_Experimental.reward_update(max_val)
+        Main_Experimental.reward_update(0)
 
     if SCORE > MAX_SCORE:
         MAX_SCORE = SCORE
