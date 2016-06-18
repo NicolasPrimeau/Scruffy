@@ -6,6 +6,8 @@ GLOBAL_MAX_VALUE = 0
 SCORE = 0
 CUR_STATE = None
 MAX_SCORE = 0
+GAMES = 0
+
 STEP_TIME = 0.1
 
 
@@ -20,14 +22,15 @@ def main():
 
 
 def restart():
-    global CUR_STATE, GLOBAL_MAX_VALUE, SCORE
-    print(str(datetime.datetime.now()) + " Still Alive, High Score: " + str(MAX_SCORE) + ", Max Value: " +
+    global CUR_STATE, GAMES, GLOBAL_MAX_VALUE, SCORE
+    print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) + ", Max Value: " +
           str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE))
     Main_Experimental.restart(-GLOBAL_MAX_VALUE, SCORE)
     Game.restart()
     CUR_STATE = None
     GLOBAL_MAX_VALUE = 0
     SCORE = 0
+    GAMES += 1
 
 
 def step():
