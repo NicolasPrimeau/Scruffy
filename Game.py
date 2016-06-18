@@ -13,7 +13,7 @@ def do_action(direction):
     direction = int(direction)
     global GAME_BOARD
     if direction not in DIRECTIONS:
-        return
+        return 0
 
     merged = [[False for j in range(GAME_BOARD_LENGTH)] for i in range(GAME_BOARD_LENGTH)]
 
@@ -95,8 +95,9 @@ def get_highest_merged(merged):
     highest = 0
     for i in range(len(merged)):
         for j in range(len(merged[i])):
-            if merged[i][j] and GAME_BOARD[i][j] > highest:
-                highest = GAME_BOARD[i][j]
+            value = GAME_BOARD[i][j] if GAME_BOARD[i][j] is not None else 0
+            if merged[i][j] and value > highest:
+                highest = value
     return highest
 
 
