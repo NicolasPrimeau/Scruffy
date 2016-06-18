@@ -33,7 +33,7 @@ def after_request(response):
 
 @app.route("/")
 def home():
-    return "<h1>Whatup</h1>"
+    return "<h1>Scruffy</h1>"
 
 
 @app.route("/analytics")
@@ -44,6 +44,16 @@ def analytics():
 @app.route("/analytics/get_scores", methods=['GET'])
 def get_reward_data():
     return Analytics.get_reward_neural_data()
+
+
+@app.route("/analytics/get_fitted_line", methods=['GET'])
+def get_line():
+    return Analytics.get_fitted_line()
+
+
+@app.route("/analytics/get_stats", methods=['GET'])
+def get_stats():
+    return Analytics.get_stats()
 
 
 @app.route("/api")
