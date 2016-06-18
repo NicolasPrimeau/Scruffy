@@ -1,4 +1,4 @@
-from Scruffy import Game
+import Game
 import Main_Experimental
 import datetime
 
@@ -54,7 +54,6 @@ def step():
     if Game.game_over():
         print("Game Over")
         restart()
-        return
     else:
         CUR_STATE, SCORE = get_state()
         Main_Experimental.reward_update(merged_val)
