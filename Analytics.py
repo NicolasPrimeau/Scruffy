@@ -25,7 +25,10 @@ def get_reward_neural_data():
     return json.dumps(window_averages(scores.find().sort('time', pymongo.ASCENDING))), 201
 
 
-def window_averages(data, window=100):
+def window_averages(data, window=None):
+    if window is None:
+        window = max([int((len(data)/100)), 1])
+
     ret_list = list()
     cnt = 0
     avg = 0
