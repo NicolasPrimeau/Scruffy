@@ -86,7 +86,18 @@ def do_action(direction):
                         cols -= 1
 
     spawn_cell()
-    return game_over()
+
+    return get_highest_merged(merged)
+
+
+def get_highest_merged(merged):
+    global GAME_BOARD
+    highest = 0
+    for i in range(len(merged)):
+        for j in range(len(merged[i])):
+            if merged[i][j] and GAME_BOARD[i][j] > highest:
+                highest = GAME_BOARD[i][j]
+    return highest
 
 
 def get_legal_actions():
