@@ -7,7 +7,7 @@ SCORE = 0
 CUR_STATE = None
 MAX_SCORE = 0
 GAMES = 0
-
+REWARD = 0
 STEP_TIME = 0.1
 
 
@@ -22,19 +22,20 @@ def main():
 
 
 def restart():
-    global CUR_STATE, GAMES, GLOBAL_MAX_VALUE, SCORE
+    global CUR_STATE, GAMES, GLOBAL_MAX_VALUE, SCORE, REWARD
     print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) + ", Max Value: " +
-          str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE))
+          str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD))
     Main_Experimental.restart(-GLOBAL_MAX_VALUE, SCORE)
     Game.restart()
     CUR_STATE = None
     GLOBAL_MAX_VALUE = 0
     SCORE = 0
     GAMES += 1
+    REWARD = 0
 
 
 def step():
-    global CUR_STATE, GLOBAL_MAX_VALUE, SCORE, MAX_SCORE
+    global CUR_STATE, GLOBAL_MAX_VALUE, SCORE, MAX_SCORE, REWARD
 
     if CUR_STATE is None:
         CUR_STATE, SCORE = get_state()
@@ -43,6 +44,7 @@ def step():
     action = Main_Experimental.get_next_action(CUR_STATE)
     while action in illegals:
         Main_Experimental.reward_update(-100000)
+        REWARD += -100000
         action = Main_Experimental.get_next_action(CUR_STATE)
     merged_val = Game.do_action(action)
 
@@ -53,6 +55,7 @@ def step():
 
     CUR_STATE, SCORE = get_state()
     Main_Experimental.reward_update(merged_val)
+    REWARD += merged_val
     if GLOBAL_MAX_VALUE < merged_val:
         GLOBAL_MAX_VALUE = merged_val
     if SCORE > MAX_SCORE:
