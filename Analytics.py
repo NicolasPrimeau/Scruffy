@@ -36,6 +36,7 @@ def window_averages(data, window=100):
         if cnt == window:
             ret_list.append({"time": i["time"], "score": float(avg)/cnt})
             last = None
+            avg = 0
             cnt = 0
         last = i
     if last is not None:
