@@ -134,8 +134,8 @@ def restart(reward, score):
     client["AI2048"].neural_scores.insert_one({"reward": score, "time": datetime.datetime.now().timestamp()})
     client["AI2048"].misc.update_one({"name": "high_score"}, {"$max": {"value": score}}, upsert=True)
     reward_update(float(reward))
-    agent.newEpisode()
     agent.learn()
+    agent.newEpisode()
     save_agent()
 
 
