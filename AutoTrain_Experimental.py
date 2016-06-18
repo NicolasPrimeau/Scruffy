@@ -55,6 +55,7 @@ def step():
 
     CUR_STATE, SCORE = get_state()
     Main_Experimental.reward_update(merged_val)
+    print(merged_val)
     REWARD += merged_val
     if GLOBAL_MAX_VALUE < merged_val:
         GLOBAL_MAX_VALUE = merged_val
