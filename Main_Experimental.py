@@ -191,7 +191,8 @@ def get_high_score():
     global client
     if client is None:
         return 0
-    return client["AI2048"].misc.find_one({"name": "high_score"})["value"]
+    record = client["AI2048"].misc.find_one({"name": "high_score"})
+    return record["value"] if record is not None else 0
 
 
 if __name__ == "__main__":
