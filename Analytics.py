@@ -27,7 +27,7 @@ def get_reward_neural_data():
 
 def window_averages(data, window=None):
     if window is None:
-        window = max([int((len(data)/100)), 1])
+        window = max([int((data.count()/100)), 1])
 
     ret_list = list()
     cnt = 0
