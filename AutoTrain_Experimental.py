@@ -45,9 +45,6 @@ def step():
     illegals = Game.get_illegal_actions()
     action = int(Main_Experimental.get_next_action(CUR_STATE))
 
-    print(action)
-    print(type(action))
-    print(illegals)   
     while action in illegals:
         Main_Experimental.reward_update(-1000)
         REWARD += -1000
