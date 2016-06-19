@@ -84,6 +84,7 @@ def initialize_network(override=False):
     if agent is None or override:
         record = client["AI2048"].networks.find_one()
         if record is None:
+            print("No Network found in DB, creating new one")
             controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
             controller.network.is_loaded_correctly = True
         else:
@@ -101,7 +102,7 @@ def initialize_network(override=False):
                 controller = ActionValueNetwork(GAME_BOARD_LENGTH * GAME_BOARD_LENGTH, len(ACTIONS))
                 controller.network.is_loaded_correctly = True
             controller.network.is_loaded_correctly = True
-        agent = LearningAgent(controller, NFQ())
+        agent = LearningAgent(controller, NFQ(alpha=0.1,gamma=0.9))
     agent.newEpisode()
 
 
