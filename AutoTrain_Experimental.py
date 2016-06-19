@@ -12,13 +12,14 @@ STEP_TIME = 0.1
 
 
 def main():
-    global STEP_TIME, MAX_SCORE
+    global STEP_TIME, MAX_SCORE, GAMES
     Main_Experimental.initialize()
     Game.restart()
     MAX_SCORE = Main_Experimental.get_high_score()
     print(str(datetime.datetime.now()) + " Starting up")
-    while True:
+    while GAMES<40:
         step()
+    return 1
 
 
 def restart():
@@ -43,6 +44,7 @@ def step():
 
     illegals = Game.get_illegal_actions()
     action = Main_Experimental.get_next_action(CUR_STATE)
+   
     while action in illegals:
         Main_Experimental.reward_update(-1000)
         REWARD += -1000

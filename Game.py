@@ -115,7 +115,8 @@ def get_legal_actions():
 
 
 def get_illegal_actions():
-    return [x for x in get_legal_actions() if x not in DIRECTIONS]
+    legal = get_legal_actions()
+    return [x for x in DIRECTIONS if x not in legal]
 
 
 def game_over():
