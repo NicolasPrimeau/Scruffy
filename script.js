@@ -6,6 +6,7 @@ ACTION_TAKEN = null;
 //IP = "http://54.87.183.191:5000"
 IP = "http://192.168.0.104:5000"
 
+
 function Ai() {
 
     this.init = function() {

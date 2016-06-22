@@ -30,7 +30,7 @@ LIMITER = None
 def main(agent_type, no_print=False):
     if no_print:
         sys.stdout = open(os.devnull, 'w')
-    global MAX_SCORE, AGENT_TYPE, LIMITER
+    global MAX_SCORE, LIMITER
     agent = agent_type(actions=ACTIONS, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
                        elligibility_trace=True, game_size=4)
     Game.restart()
