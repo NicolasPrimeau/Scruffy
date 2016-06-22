@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <title>2048 AI Analytics</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="static/analytics.js"></script>
+    <style>
+        body {
+            float:left;
+            width:100%;
+        }
+
+        #stats {
+            width:36%;
+            margin-left:20%;
+            float:left;
+            padding:3%;
+        }
+
+        #stats h2 {
+            width: 100%;
+            float: left;
+            padding-left: 5px;
+            padding-bottom:20px;
+            margin: 0;
+        }
+
+        #stats p {
+            width: auto;
+            float: left;
+            padding-left: 5px;
+            padding-right: 5px;
+            margin: 0;
+        }
+
+        #stats .stat-entry {
+            float:left;
+            width: 100%;
+            padding-top:5px;
+            padding-bottom:5px;
+        }
+    </style>
+</head>
+<body>
+<div id="stats">
+    <h2>Stats</h2>
+    <div class="stat-entry">
+        <p id="game_cnt" class="description">Game Count:</p><p id="game_cnt_val" class="val">0</p>
+    </div>
+    <div class="stat-entry">
+        <p id="max_score" class="description">Max Score:</p><p id="max_score_val" class="val">0</p>
+    </div>
+</div>
+<div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+</body>
+
+</html>
