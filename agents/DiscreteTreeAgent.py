@@ -17,12 +17,15 @@ class DiscreteTreeAgent(Agent):
 
     def load(self):
         self.root = self._recursive_load(self.root, self.root.get_state_key(), 0)
+        self.root.parent = None
 
     def _recursive_load(self, node, state_key, level):
-        record = self.client[self.database][self.name + "_tree"].find_one({"state_key": state_key, "level": level})
+        record = self.client[self.database][self.name + "_tree"].find_one({"state_key": state_key, "level": str(level)})
         if record is not None:
             node = TreeNode(node, self.actions)
-            node.action_values = [float(x) for x in record["action_values"]]
+            node.action_values = dict()
+            for i in self.actions:
+                node.action_values[i] = float(record["actions_values"][i])
             for key in record["children"]:
                 node.children[key] = self._recursive_load(node, key, level+1)
                 node.children[key].parent = node

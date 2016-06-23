@@ -27,7 +27,7 @@ GAMMA = 0.9
 Exploration = 0.05
 
 main_agent_type = DiscreteTreeAgent
-SAVE_STEP = 10000
+SAVE_STEP = 100000
 LIMITER = None
 
 
