@@ -27,6 +27,7 @@ GAMMA = 0.9
 Exploration = 0.05
 
 main_agent_type = DiscreteTreeAgent
+SAVE_STEP = 10000
 LIMITER = None
 
 
@@ -45,7 +46,7 @@ def main(agent_type, no_print=False):
 
 
 def restart(agent):
-    global CUR_STATE, GAMES, GLOBAL_MAX_VALUE, SCORE, REWARD
+    global CUR_STATE, GAMES, SAVE_STEP, GLOBAL_MAX_VALUE, SCORE, REWARD
     print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) +
           ", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD))
     agent.learn()
@@ -56,7 +57,8 @@ def restart(agent):
     SCORE = 0
     GAMES += 1
     REWARD = 0
-    if GAMES % 1000 == 0:
+    if GAMES % SAVE_STEP == 0:
+        print("Saving Agent State")
         agent.save()
 
 
