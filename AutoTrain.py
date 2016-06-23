@@ -7,6 +7,8 @@ import os
 import warnings
 
 from agents.DiscreteAgent import DiscreteAgent
+from agents.DiscreteTreeAgent import DiscreteTreeAgent
+from agents.NeuralNetAgent import NeuralNetAgent
 
 warnings.filterwarnings("ignore")
 
@@ -24,6 +26,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
+main_agent_type = DiscreteTreeAgent
 LIMITER = None
 
 
@@ -99,4 +102,4 @@ def get_state():
 
 
 if __name__ == "__main__":
-    main(DiscreteAgent)
+    main(main_agent_type)

@@ -1,6 +1,6 @@
 import random
 
-from agents.Agent import Agent
+from agents.Agent import Agent, get_e_greedy_action
 from rl.Episode import Episode
 
 
@@ -83,22 +83,6 @@ class DiscreteAgent(Agent):
                     eligibles[-idx][0]["actions"][eligibles[-idx][1]] += discounted
                     states.update({'_id': eligibles[-idx][0]['_id']}, eligibles[-idx][0])
                 eligibles.append((record, episode.action))
-
-
-def get_e_greedy_action(actions, exploration):
-    if random.uniform(0, 1) > exploration:
-        max_value = next(iter(actions.values()))
-        keys = list()
-        for key, val in actions.items():
-            if val > max_value:
-                keys = [key]
-                max_value = val
-            elif val == max_value:
-                keys.append(key)
-    else:
-        keys = list(actions.keys())
-
-    return random.choice(keys) if len(keys) > 0 else "1"
 
 
 def create_new_entry(state, collection, actions):

@@ -6,7 +6,7 @@ from pybrain.rl.agents import LearningAgent
 from pybrain.rl.learners import ActionValueNetwork, NFQ
 from pybrain.tools.shortcuts import buildNetwork
 
-from agents.Agent import Agent
+from agents.Agent import Agent, map_state_to_inputs
 
 
 class NeuralNetAgent(Agent):
@@ -64,7 +64,7 @@ class NeuralNetAgent(Agent):
 
     def get_action(self, state):
         self.agent.integrateObservation(map_state_to_inputs(state, int(self.features**0.5)))
-        return self.agent.getAction()
+        return int(self.agent.getAction()[0])
 
     def give_reward(self, reward):
         self.agent.giveReward(reward)
@@ -73,12 +73,3 @@ class NeuralNetAgent(Agent):
         self.agent.learn()
         self.agent.newEpisode()
         self.save()
-
-
-def map_state_to_inputs(state, board_size):
-    state_mapping = list()
-    for i in range(board_size):
-        for j in range(board_size):
-            key = str(i) + "_" + str(j)
-            state_mapping.append(state[key])
-    return state_mapping

@@ -5,6 +5,7 @@ import Analytics
 
 import Database
 from agents.DiscreteAgent import DiscreteAgent
+from agents.DiscreteTreeAgent import DiscreteTreeAgent
 from agents.NeuralNetAgent import NeuralNetAgent
 
 app = Flask(__name__)
@@ -16,7 +17,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = DiscreteAgent
+AGENT_TYPE = DiscreteTreeAgent
 AGENT = None
 game_id = 0
 
@@ -81,25 +82,28 @@ def initialize():
 
 def setup():
     global AGENT, Exploration, ALPHA, GAMMA, ACTIONS, game_id
-    if AGENT is None:
-        AGENT = AGENT_TYPE(actions=ACTIONS, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
-                           elligibility_trace=True)
-        random.seed()
-        game_id += 1
+    AGENT = AGENT_TYPE(actions=ACTIONS, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+                       elligibility_trace=True)
+    random.seed()
+    game_id += 1
 
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
     global AGENT
+    if AGENT is None:
+        return json.dumps({"action": ""}), 200
     state = request.json["state"]
-    return json.dumps({"action": AGENT.get_action(state)}), 201
+    illegals = request.json["illegals"]
+    action = AGENT.get_action(state)
+    return json.dumps({"action": action}), 200
 
 
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
     global AGENT
     reward = request.json["reward"]
-    AGENT.give_reward(float(reward))
+    #AGENT.give_reward(float(reward))
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -107,11 +111,11 @@ def update_reward_handler():
 def restart_handler():
     reward = request.json["reward"]
     score = request.json["score"]
-
-    Database.save_score(AGENT.name, score)
-    AGENT.give_reward(float(reward))
-    AGENT.learn()
-
+    #Database.save_score(AGENT.name, score)
+    #AGENT.give_reward(float(reward))
+    #AGENT.learn()
+    #AGENT.__exit__()
+    #setup()
     return json.dumps({"game_id": game_id}), 201
 
 

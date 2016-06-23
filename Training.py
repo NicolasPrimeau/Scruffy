@@ -2,9 +2,10 @@ import multiprocessing as mp
 
 import AutoTrain
 from agents.DiscreteAgent import DiscreteAgent
+from agents.NeuralNetAgent import NeuralNetAgent
 
-numProcs = 5
-procs = [mp.Process(target=AutoTrain.main, args=(DiscreteAgent, True,)) for _ in range(numProcs)]
+numProcs = 1
+procs = [mp.Process(target=AutoTrain.main, args=(NeuralNetAgent, False,)) for _ in range(numProcs)]
 for p in procs:
     p.start()
 
