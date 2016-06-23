@@ -92,18 +92,24 @@ def setup():
 def get_next_action_handler():
     global AGENT
     if AGENT is None:
-        return json.dumps({"action": ""}), 200
+        setup()
     state = request.json["state"]
     illegals = request.json["illegals"]
     action = AGENT.get_action(state)
+    illegals = [int(i) for i in illegals]
+    while action in illegals:
+        AGENT.give_reward(-100)
+        action = AGENT.get_action(state)
     return json.dumps({"action": action}), 200
 
 
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
     global AGENT
+    if AGENT is None:
+        setup()
     reward = request.json["reward"]
-    #AGENT.give_reward(float(reward))
+    AGENT.give_reward(float(reward))
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -111,11 +117,12 @@ def update_reward_handler():
 def restart_handler():
     reward = request.json["reward"]
     score = request.json["score"]
-    #Database.save_score(AGENT.name, score)
-    #AGENT.give_reward(float(reward))
-    #AGENT.learn()
-    #AGENT.__exit__()
-    #setup()
+    global AGENT
+    if AGENT is None:
+        setup()
+    AGENT.give_reward(float(reward))
+    AGENT.learn()
+    AGENT.load()
     return json.dumps({"game_id": game_id}), 201
 
 

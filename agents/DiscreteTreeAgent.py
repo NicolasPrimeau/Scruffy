@@ -1,9 +1,4 @@
 import random
-
-import pickle
-
-from bson import Binary
-
 from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action
 from rl.Episode import Episode
 
@@ -16,20 +11,37 @@ class DiscreteTreeAgent(Agent):
         self.gamma = gamma
         self.game_size = game_size
         self.exploration = exploration
-        self.root = TreeNode(None, None, 0, self.actions)
+        self.root = TreeNode("Root", None, 0, self.actions)
         self.episodes = list()
         self.load()
 
     def load(self):
-        record = self.client[self.database].models.find_one({"model": self.name})
+        self.root = self._recursive_load(self.root, "Root")
+
+    def _recursive_load(self, node, key):
+        record = self.client[self.database][self.name + "_tree"].find_one({"state_key": key, "level": node.level+1})
         if record is not None:
-            self.root = pickle.loads(record["data"])
+            node = TreeNode(key, node, node.level + 1, self.actions)
+            node.action_values = [float(x) for x in record["action_values"]]
+            for key in record["children"]:
+                node.children[key] = self._recursive_load(node, key)
+                node.children[key].parent = node
+        return node
 
     def save(self):
-        self.client[self.database]["models"].update_one({"model": self.name},
-                                                        {"$set": {
-                                                            "data": Binary(pickle.dumps(self.root))}},
-                                                        upsert=True)
+        self._recursive_save(self.root)
+
+    def _recursive_save(self, node):
+        action_values = [str(x) for x in node.action_values]
+        children = [str(key) for key in node.children.keys()]
+        self.client[self.database][self.name + "_tree"].update_one({"state_key": node.state_key,
+                                                                    "level": str(node.level)},
+                                                                   {"$set": {"actions_values": action_values,
+                                                                             "children": children}},
+                                                                   upsert=True)
+
+        for key in node.children:
+            self._recursive_save(node.children[key])
 
     def get_action(self, state):
         state = map_state_to_inputs(state, self.game_size)
@@ -65,7 +77,7 @@ class DiscreteTreeAgent(Agent):
 
             then_action = get_e_greedy_action(episode.node.action_values, exploration=None)
 
-            if prev_action != then_action and episode.node.level != (len(episode.state)-1):
+            if reward >= 0 and prev_action != then_action and episode.node.level != (len(episode.state)-1):
                 new_node = self._split_node(episode.node, episode.state)
                 new_node.action_values[episode.action] += reward
                 episode.node.action_values[episode.action] -= reward

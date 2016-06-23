@@ -56,6 +56,8 @@ def restart(agent):
     SCORE = 0
     GAMES += 1
     REWARD = 0
+    if GAMES % 1000 == 0:
+        agent.save()
 
 
 def step(agent):
