@@ -27,10 +27,58 @@ class Agent:
             self.client.close()
 
 
-def map_state_to_inputs(state, board_size):
+class TreeNode:
+    def __init__(self, parent, actions):
+        self.action_values = dict()
+        for i in actions:
+            self.action_values[i] = random.gauss(0, 1)
+        self.parent = parent
+        self.children = dict()
+
+    def get_level(self):
+        node = self
+        level = 0
+        while node.parent is not None:
+            node = node.parent
+            level += 1
+        return level
+
+    def get_feature(self):
+        if self.parent is None:
+            return "Root"
+        else:
+            for key in self.parent.children:
+                if self.parent.children[key] is self:
+                    return key
+
+
+class GraphNode(TreeNode):
+
+    def __init__(self, parent, actions, feature, feature_id):
+        super().__init__(parent, actions)
+        self.feature = feature
+        self.feature_id = feature_id
+
+    def get_feature(self):
+        return self.feature
+
+    def get_feature_id(self):
+        return self.feature_id
+
+    def get_next(self, state):
+        next_nodes = list()
+        if self.feature is not None and self.feature != state[self.feature_id] or len(self.children) != 0:
+            for i in range(len(state)):
+                key = (i, state[i])
+                if key in self.children:
+                    next_nodes.append(self.children[key])
+        return next_nodes
+
+
+def map_state_to_inputs(state):
     state_mapping = list()
-    for i in range(board_size):
-        for j in range(board_size):
+    for i in range(int(len(state)**0.5)):
+        for j in range(int(len(state)**0.5)):
             key = str(i) + "_" + str(j)
             state_mapping.append(state[key])
     return state_mapping

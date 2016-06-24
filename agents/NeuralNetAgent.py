@@ -63,7 +63,7 @@ class NeuralNetAgent(Agent):
                                              upsert=True)
 
     def get_action(self, state):
-        self.agent.integrateObservation(map_state_to_inputs(state, int(self.features**0.5)))
+        self.agent.integrateObservation(map_state_to_inputs(state))
         return int(self.agent.getAction()[0])
 
     def give_reward(self, reward):

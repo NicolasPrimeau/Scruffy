@@ -1,5 +1,5 @@
-import random
-from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action
+
+from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action, TreeNode
 from rl.Episode import Episode
 
 
@@ -16,7 +16,7 @@ class DiscreteTreeAgent(Agent):
         self.load()
 
     def load(self):
-        self.root = self._recursive_load(self.root, self.root.get_state_key(), 0)
+        self.root = self._recursive_load(self.root, self.root.get_feature(), 0)
         self.root.parent = None
 
     def _recursive_load(self, node, state_key, level):
@@ -32,7 +32,7 @@ class DiscreteTreeAgent(Agent):
         return node
 
     def save(self):
-        self._recursive_save(self.root, self.root.get_state_key(), 0)
+        self._recursive_save(self.root, self.root.get_feature(), 0)
 
     def _recursive_save(self, node, state_key, level):
         action_values = [str(x) for x in node.action_values]
@@ -47,7 +47,7 @@ class DiscreteTreeAgent(Agent):
             self._recursive_save(node.children[key], key, level+1)
 
     def get_action(self, state):
-        state = map_state_to_inputs(state, self.game_size)
+        state = map_state_to_inputs(state)
         node = self._recursive_get_leaf(self.root, state, 0)
         action = get_e_greedy_action(node.action_values, exploration=self.exploration)
         episode = Episode(state, action, 0)
@@ -65,52 +65,33 @@ class DiscreteTreeAgent(Agent):
         self.episodes[-1].reward = reward
 
     def learn(self):
+
         while len(self.episodes) > 0:
             episode = self.episodes.pop(0)
+            level = episode.node.get_level()
+
             prev_action = get_e_greedy_action(episode.node.action_values, exploration=None)
-
             next_node = self.episodes[0].node if len(self.episodes) != 0 else episode.node
-
             reward = episode.reward
             reward += self.alpha * (self.gamma * max(next_node.action_values,
                                                      key=lambda i: next_node.action_values[i]) -
                                     episode.node.action_values[episode.action])
-
             episode.node.action_values[episode.action] += reward
 
             then_action = get_e_greedy_action(episode.node.action_values, exploration=None)
 
-            level = episode.node.get_level()
-            if reward >= 0 and prev_action != then_action and level != (len(episode.state)-1):
-                new_node = self._split_node(episode.node, episode.state, level)
-                new_node.action_values[episode.action] += reward
+            if reward > 0 and prev_action != then_action and level != (len(episode.state)-1):
+                self._split_node(episode.node, episode.state, level)
                 episode.node.action_values[episode.action] -= reward
+            elif prev_action != then_action and len(episode.node.children) == 0 and level != 0:
+                parent_action = get_e_greedy_action(episode.node.parent.action_values, exploration=None)
+                if parent_action == then_action:
+                    del episode.node.parent.children[episode.node.get_feature()]
+                    for rest_episode in self.episodes:
+                        if rest_episode is episode.node:
+                            rest_episode.node = episode.node.parent
+                    episode.node.parent = None
 
     def _split_node(self, node, state, level):
         node.children[state[level]] = TreeNode(node, self.actions)
-        return node.children[state[level]]
-
-
-class TreeNode:
-    def __init__(self, parent, actions):
-        self.action_values = dict()
-        for i in actions:
-            self.action_values[i] = random.gauss(0, 1)
-        self.parent = parent
-        self.children = dict()
-
-    def get_level(self):
-        node = self
-        level = 0
-        while node.parent is not None:
-            node = node.parent
-            level += 1
-        return level
-
-    def get_state_key(self):
-        if self.parent is None:
-            return "Root"
-        else:
-            for key in self.parent.children:
-                if self.parent.children[key] is self:
-                    return key
+        node.children[state[level]].action_values = node.action_values.copy()

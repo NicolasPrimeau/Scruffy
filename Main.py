@@ -4,7 +4,9 @@ import random
 import Analytics
 
 import Database
+from agents.ClusterAgent import ClusterAgent
 from agents.DiscreteAgent import DiscreteAgent
+from agents.DiscreteGraphAgent import DiscreteGraphAgent
 from agents.DiscreteTreeAgent import DiscreteTreeAgent
 from agents.NeuralNetAgent import NeuralNetAgent
 
@@ -81,8 +83,8 @@ def initialize():
 
 
 def setup():
-    global AGENT, Exploration, ALPHA, GAMMA, ACTIONS, game_id
-    AGENT = AGENT_TYPE(actions=ACTIONS, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+    global AGENT, Exploration, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
+    AGENT = AGENT_TYPE(actions=ACTIONS, features=GRID_SIZE, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
                        elligibility_trace=True)
     random.seed()
     game_id += 1

@@ -6,7 +6,9 @@ import os
 
 import warnings
 
+from agents.ClusterAgent import ClusterAgent
 from agents.DiscreteAgent import DiscreteAgent
+from agents.DiscreteGraphAgent import DiscreteGraphAgent
 from agents.DiscreteTreeAgent import DiscreteTreeAgent
 from agents.NeuralNetAgent import NeuralNetAgent
 
@@ -34,9 +36,9 @@ LIMITER = None
 def main(agent_type, no_print=False):
     if no_print:
         sys.stdout = open(os.devnull, 'w')
-    global MAX_SCORE, LIMITER
-    agent = agent_type(actions=ACTIONS, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
-                       elligibility_trace=True, game_size=4)
+    global MAX_SCORE, LIMITER, GRID_SIZE
+    agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+                       elligibility_trace=True, game_size=GRID_SIZE)
     Game.restart()
     MAX_SCORE = Database.get_high_score(agent.name)
     print(str(datetime.datetime.now()) + " Starting up")
