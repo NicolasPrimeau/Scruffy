@@ -9,8 +9,10 @@ import warnings
 from agents.ClusterAgent import ClusterAgent
 from agents.DiscreteAgent import DiscreteAgent
 from agents.DiscreteGraphAgent import DiscreteGraphAgent
+from agents.DiscreteNeighbourAgent import DiscreteNeighbourAgent
 from agents.DiscreteTreeAgent import DiscreteTreeAgent
 from agents.NeuralNetAgent import NeuralNetAgent
+from agents.DiscreteStateLookupAgent import DiscreteStateLookupAgent
 
 warnings.filterwarnings("ignore")
 
@@ -28,7 +30,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-main_agent_type = DiscreteTreeAgent
+main_agent_type = DiscreteNeighbourAgent
 SAVE_STEP = 100000
 LIMITER = None
 
