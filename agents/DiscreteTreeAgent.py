@@ -98,6 +98,19 @@ class DiscreteTreeAgent(Agent):
             if reward > 0 and prev != then and level != (len(episode.state)-1) and old_node == episode.node:
                 self._split_node(old_node, episode.state, level)
 
+        #self._prune(self.root)
+
+    def _prune(self, node, parent_action=None):
+        action = get_e_greedy_action(node.action_values, exploration=None)
+
+        for key in node.children:
+            self._prune(node.children[key], action)
+
+        if node.parent is not None and len(node.children) == 0 and action == parent_action:
+            state_key = node.get_feature()
+            del node.parent.children[state_key]
+            node.parent = None
+
     def _give_reward(self, node, action, reward):
         node.action_values[action] += reward
         cnt = 1

@@ -85,7 +85,7 @@ def map_state_to_inputs(state):
 
 
 def get_e_greedy_action(action_values, exploration):
-    if exploration is not None and random.uniform(0, 1) > exploration:
+    if exploration is None or (exploration is not None and random.uniform(0, 1) > exploration):
         max_value = next(iter(action_values.values()))
         keys = list()
         for key, val in action_values.items():

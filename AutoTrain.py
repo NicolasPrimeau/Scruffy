@@ -30,7 +30,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-main_agent_type = DiscreteNeighbourAgent
+main_agent_type = DiscreteTreeAgent
 SAVE_STEP = 100000
 LIMITER = None
 

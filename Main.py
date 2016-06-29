@@ -21,7 +21,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = DiscreteNeighbourAgent
+AGENT_TYPE = DiscreteTreeAgent
 AGENT = None
 game_id = 0
 
