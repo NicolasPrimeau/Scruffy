@@ -5,12 +5,13 @@ from rl.Episode import Episode
 
 class DiscreteTreeAgent(Agent):
 
-    def __init__(self, actions, game_size, alpha=0.1, gamma=0.9, exploration=0.05, **kwargs):
+    def __init__(self, actions, game_size, alpha=0.1, gamma=0.9, exploration=0.05, forgetting_factor=0.9, **kwargs):
         super().__init__(actions, name="DiscreteTreeAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
         self.game_size = game_size
         self.exploration = exploration
+        self.forgetting_factor = forgetting_factor
         self.root = TreeNode(None, self.actions)
         self.episodes = list()
         self.load()
@@ -48,12 +49,22 @@ class DiscreteTreeAgent(Agent):
 
     def get_action(self, state):
         state = map_state_to_inputs(state)
-        node = self._recursive_get_leaf(self.root, state, 0)
-        action = get_e_greedy_action(node.action_values, exploration=self.exploration)
+        node, action_values = self._get_action_values(state)
+        action = get_e_greedy_action(action_values, exploration=self.exploration)
         episode = Episode(state, action, 0)
         episode.node = node
         self.episodes.append(episode)
         return action
+
+    def _get_action_values(self, state):
+        node = self._recursive_get_leaf(self.root, state, 0)
+        action_values = dict(node.action_values)
+        parent = node
+        while parent.parent is not None:
+            parent = parent.parent
+            for i in self.actions:
+                action_values[i] += parent.action_values[i]
+        return node, action_values
 
     def _recursive_get_leaf(self, node, state, level):
         if state[level] in node.children:
@@ -68,29 +79,32 @@ class DiscreteTreeAgent(Agent):
 
         while len(self.episodes) > 0:
             episode = self.episodes.pop(0)
-            level = episode.node.get_level()
 
-            prev_action = get_e_greedy_action(episode.node.action_values, exploration=None)
+            old_node, old_values = self._get_action_values(episode.state)
+            prev = get_e_greedy_action(old_values, exploration=None)
+
             next_node = self.episodes[0].node if len(self.episodes) != 0 else episode.node
             reward = episode.reward
             reward += self.alpha * (self.gamma * max(next_node.action_values,
                                                      key=lambda i: next_node.action_values[i]) -
                                     episode.node.action_values[episode.action])
-            episode.node.action_values[episode.action] += reward
 
-            then_action = get_e_greedy_action(episode.node.action_values, exploration=None)
+            level = old_node.get_level()
+            self._give_reward(old_node, episode.action, reward)
 
-            if reward > 0 and prev_action != then_action and level != (len(episode.state)-1):
-                self._split_node(episode.node, episode.state, level)
-                episode.node.action_values[episode.action] -= reward
-            elif prev_action != then_action and len(episode.node.children) == 0 and level != 0:
-                parent_action = get_e_greedy_action(episode.node.parent.action_values, exploration=None)
-                if parent_action == then_action:
-                    del episode.node.parent.children[episode.node.get_feature()]
-                    for rest_episode in self.episodes:
-                        if rest_episode is episode.node:
-                            rest_episode.node = episode.node.parent
-                    episode.node.parent = None
+            new_node, values = self._get_action_values(episode.state)
+            then = get_e_greedy_action(values, exploration=None)
+
+            if reward > 0 and prev != then and level != (len(episode.state)-1) and old_node == episode.node:
+                self._split_node(old_node, episode.state, level)
+
+    def _give_reward(self, node, action, reward):
+        node.action_values[action] += reward
+        cnt = 1
+        while node.parent is not None:
+            node = node.parent
+            node.action_values[action] += reward * (self.forgetting_factor**cnt)
+            cnt += 1
 
     def _split_node(self, node, state, level):
         node.children[state[level]] = TreeNode(node, self.actions)

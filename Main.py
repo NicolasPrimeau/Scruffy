@@ -100,7 +100,7 @@ def get_next_action_handler():
     action = AGENT.get_action(state)
     illegals = [int(i) for i in illegals]
     while action in illegals:
-        AGENT.give_reward(-100)
+        #AGENT.give_reward(-100)
         action = AGENT.get_action(state)
     return json.dumps({"action": action}), 200
 
@@ -111,7 +111,7 @@ def update_reward_handler():
     if AGENT is None:
         setup()
     reward = request.json["reward"]
-    AGENT.give_reward(float(reward))
+    #AGENT.give_reward(float(reward))
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -122,8 +122,8 @@ def restart_handler():
     global AGENT
     if AGENT is None:
         setup()
-    AGENT.give_reward(float(reward))
-    AGENT.learn()
+    #AGENT.give_reward(float(reward))
+    #AGENT.learn()
     AGENT.load()
     return json.dumps({"game_id": game_id}), 201
 
