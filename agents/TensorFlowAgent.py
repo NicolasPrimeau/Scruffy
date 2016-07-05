@@ -66,7 +66,7 @@ class TensorFlowAgent(Agent):
             next_actions = self.session.run(self.output, feed_dict={self.state_ph: [next_state]})[0]
 
             reward = episode.reward
-            reward += self.alpha(self.gamma * max(next_actions) - episode.actions[episode.action])
+            reward += self.alpha * (self.gamma * max(next_actions) - episode.actions[episode.action])
             ar[episode.action] = reward
 
             rewards.append(ar.astype(float))
