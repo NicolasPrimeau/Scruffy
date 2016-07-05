@@ -3,7 +3,6 @@ import json
 import random
 import Analytics
 
-import Database
 from agents.ClusterAgent import ClusterAgent
 from agents.DiscreteAgent import DiscreteAgent
 from agents.DiscreteGraphAgent import DiscreteGraphAgent
@@ -11,6 +10,7 @@ from agents.DiscreteNeighbourAgent import DiscreteNeighbourAgent
 from agents.DiscreteStateLookupAgent import DiscreteStateLookupAgent
 from agents.DiscreteTreeAgent import DiscreteTreeAgent
 from agents.NeuralNetAgent import NeuralNetAgent
+from agents.TensorFlowAgent import TensorFlowAgent
 
 app = Flask(__name__)
 
@@ -21,7 +21,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = DiscreteTreeAgent
+AGENT_TYPE = TensorFlowAgent
 AGENT = None
 game_id = 0
 

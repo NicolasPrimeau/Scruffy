@@ -68,7 +68,6 @@ class DiscreteNeighbourAgent(Agent):
                 nearest.sort(key=lambda x: x[0])
                 if len(nearest) > k:
                     nearest = nearest[:k]
-
         return nearest
 
     def give_reward(self, reward):
@@ -86,7 +85,7 @@ class DiscreteNeighbourAgent(Agent):
             states = database[self.name + "_states"]
             if reward < 0:
                 self._create_cluster(episode.state)
-                record = create_new_entry(episode.state, states, self.actions)
+                create_new_entry(episode.state, states, self.actions)
 
             for neighbour in episode.neighbours:
                 neighbour = neighbour[1]

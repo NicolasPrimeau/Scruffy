@@ -25,14 +25,6 @@ class NeuralNetAgent(Agent):
             print("No Network found in DB, creating new one")
             controller = ActionValueNetwork(self.features, len(self.actions))
 
-            options = {'bias': True,
-           'hiddenclass': SigmoidLayer,
-           'outclass': LinearLayer,
-           'outputbias': True,
-           'peepholes': False,
-           'recurrent': False,
-           'fast': False,
-    }
             controller.network = buildNetwork(self.features + len(self.actions),
                                               self.features + len(self.actions),
                                               self.features + len(self.actions),
@@ -67,7 +59,7 @@ class NeuralNetAgent(Agent):
         return int(self.agent.getAction()[0])
 
     def give_reward(self, reward):
-        self.agent.giveReward(reward)
+        self.agent.giveReward(reward/2048)
 
     def learn(self):
         self.agent.learn()

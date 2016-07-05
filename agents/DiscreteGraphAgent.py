@@ -1,5 +1,6 @@
+import random
 
-from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action, TreeNode, GraphNode
+from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action, GraphNode
 from rl.Episode import Episode
 
 
@@ -31,7 +32,8 @@ class DiscreteGraphAgent(Agent):
             self.root = node
 
     def _recursive_load(self, node, f, fid, level):
-        record = self.client[self.database][self.name + "_tree"].find_one({"feature": f, "feature_id": fid, "level": level})
+        record = self.client[self.database][self.name + "_tree"].find_one({"feature": f,
+                                                                           "feature_id": fid, "level": level})
         if record is not None:
             node = GraphNode(node, self.actions, int(f), int(fid))
             node.action_values = dict()
@@ -50,19 +52,22 @@ class DiscreteGraphAgent(Agent):
         state = map_state_to_inputs(state)
         leafs = self._recursive_get_leafs(self.root, state)
 
-        max_node = max(leafs, key=lambda leaf: max(leaf.action_values))
-        to_del = list(filter(lambda x: len(x.children) == 0 and x is not max_node, leafs))
+        action_values = self._get_action_values(leafs)
 
-        for node in to_del:
-            del node.parent.children[(node.feature_id, node.feature)]
-            node.parent = None
-
-        action = get_e_greedy_action(max_node.action_values, exploration=self.exploration)
+        action = get_e_greedy_action(action_values, exploration=self.exploration)
         episode = Episode(state, action, 0)
-        episode.node = max_node
         episode.leafs = leafs
         self.episodes.append(episode)
         return action
+
+    def _get_action_values(self, leafs):
+        action_values = {key: 0 for key in self.actions}
+        for leaf in leafs:
+            for key in leaf.action_values:
+                action_values[key] += leaf.action_values[key]
+        for key in action_values:
+            action_values[key] /= len(leafs)
+        return action_values
 
     def _recursive_get_leafs(self, node, state):
         leafs = list()
@@ -76,27 +81,21 @@ class DiscreteGraphAgent(Agent):
         self.episodes[-1].reward = reward
 
     def learn(self):
-        split_nodes = list()
         while len(self.episodes) > 0:
             episode = self.episodes.pop(0)
-            if episode.node in split_nodes:
-                continue
 
-            prev_action = get_e_greedy_action(episode.node.action_values, exploration=None)
-            next_node = self.episodes[0].node if len(self.episodes) != 0 else episode.node
+            action_values = self._get_action_values(episode.leafs)
+            next_leafs = self.episodes[0].leafs if len(self.episodes) != 0 else episode.leafs
+            next_values = self._get_action_values(next_leafs)
             reward = episode.reward
-            reward += self.alpha * (self.gamma * max(next_node.action_values,
-                                                     key=lambda i: next_node.action_values[i]) -
-                                    episode.node.action_values[episode.action])
-            episode.node.action_values[episode.action] += reward
+            reward += self.alpha * (self.gamma * max(next_values, key=lambda i: next_values[i]) -
+                                    action_values[episode.action])
 
-            then_action = get_e_greedy_action(episode.node.action_values, exploration=None)
-
-            #level = episode.node.get_level()
-            if prev_action != then_action: # and level != (len(episode.state)-1):
-                self._split_node(episode.node, episode.state)
-                episode.node.action_values[episode.action] -= reward
-                split_nodes.append(episode.node)
+            if reward > 0:
+                self._split_node(random.choice(episode.leafs), episode.state)
+            else:
+                for leaf in episode.leafs:
+                    leaf.action_values[episode.action] += reward
 
     def _split_node(self, node, state):
         for i in range(len(state)):
