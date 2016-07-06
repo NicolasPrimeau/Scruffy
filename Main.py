@@ -83,10 +83,12 @@ def initialize():
     setup()
     return json.dumps({"game_id": game_id}), 201
 
-
+setting_up = False
 def setup():
-    global AGENT, Exploration, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
-    AGENT = AGENT_TYPE(actions=ACTIONS, features=GRID_SIZE, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+    global AGENT, Exploration, setting_up, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
+    if not setting_up and AGENT is None:
+      setting_up = True
+      AGENT = AGENT_TYPE(actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
                        elligibility_trace=True)
     random.seed()
     game_id += 1
@@ -104,7 +106,7 @@ def get_next_action_handler():
     while action in illegals:
         #AGENT.give_reward(-100)
         action = AGENT.get_action(state)
-    return json.dumps({"action": action}), 200
+    return json.dumps({"action": str(action)}), 200
 
 
 @app.route("/api/reward_update", methods=['POST'])
