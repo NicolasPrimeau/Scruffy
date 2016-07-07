@@ -1,4 +1,5 @@
 import random
+from collections import deque
 
 from agents.Agent import Agent, map_state_to_inputs
 import numpy as np
@@ -6,43 +7,39 @@ import tensorflow as tf
 
 from rl.Episode import Episode
 
+# Double DQN
+
 
 class TensorFlowAgent(Agent):
 
-    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3, **kwargs):
+    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=4,
+                 double_q_learning_steps=100, **kwargs):
         super().__init__(actions, name="TensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
         self.features = features
         self.exploration = exploration
         self.episodes = list()
-        self.previous = list()
+        self.previous = deque(maxlen=experience_replays)
         self.experience_replays = experience_replays
+        self.dqls = double_q_learning_steps
+        self.games = 0
 
-        self.session = tf.Session()
-        hidden_weights = tf.Variable(tf.constant(0., shape=[self.features, len(self.actions)]))
-        self.state_ph = tf.placeholder("float", [None, self.features])
-        self.output = tf.matmul(self.state_ph, hidden_weights)
-        self.actions_ph = tf.placeholder("float", [None, len(self.actions)])
-        loss = tf.reduce_mean(tf.square(self.output - actions))
-        self.train_operation = tf.train.AdamOptimizer(learning_rate=self.alpha).minimize(loss)
+        self.decider = TensorFlowPerceptron("network1", self.features, self.actions, learning_rate=self.alpha)
+        self.evaluator = TensorFlowPerceptron("network2", self.features, self.actions, learning_rate=self.alpha)
         self.load()
 
     def load(self):
-        saver = tf.train.Saver()
-        try:
-            saver.restore(self.session, "agents/models/model.ckpt")
-        except ValueError:
-            self.session.run(tf.initialize_all_variables())
+        self.decider.load()
+        self.evaluator.load()
 
     def save(self):
-        saver = tf.train.Saver()
-        saver.save(self.session, "agents/models/model.ckpt")
+        self.decider.save()
+        self.evaluator.load()
 
     def get_action(self, s):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
-        actions = self.session.run(self.output,
-                                   feed_dict={self.state_ph: [s]})[0]
+        actions = self.decider.get_action(s)
         action = self._get_e_greedy_action(actions, self.exploration)
         e = Episode(s, action, 0)
         e.actions = actions
@@ -64,10 +61,6 @@ class TensorFlowAgent(Agent):
         for episodes in self.previous:
             self.learn_episodes(list(episodes))
 
-        if len(self.previous) == self.experience_replays:
-            self.previous[0:self.experience_replays-1] = self.previous[1:self.experience_replays]
-            self.previous.pop(self.experience_replays-1)
-
     def learn(self):
         self._experience_replay()
         self.previous.append(list(self.episodes))
@@ -81,15 +74,49 @@ class TensorFlowAgent(Agent):
             states.append(episode.state)
             ar = np.zeros(4)
 
-            next_state = episodes[0].state if len(episodes) != 0 else episode.state
-            next_actions = self.session.run(self.output, feed_dict={self.state_ph: [next_state]})[0]
-
             reward = episode.reward
-            reward += self.alpha * (self.gamma * max(next_actions) - episode.actions[episode.action])
+            if len(episodes) != 0:
+                next_episode = episodes[0]
+                next_action = self._get_e_greedy_action(next_episode.actions, exploration=None)
+                next_actions = self.evaluator.get_action(next_episode.state)
+                reward += self.gamma * next_actions[next_action]
             ar[episode.action] = reward
-
             rewards.append(ar.astype(float))
 
+        self.decider.train(states, rewards)
+        self.games += 1
+        if self.games == self.dqls:
+            self.games = 0
+            self.decider, self.evaluator = self.evaluator, self.decider
+
+
+class TensorFlowPerceptron:
+
+    def __init__(self, name, features, actions, learning_rate=0.1):
+        self.name = name
+        self.session = tf.Session()
+        hidden_weights = tf.Variable(tf.constant(0., shape=[features, len(actions)]))
+        self.state_ph = tf.placeholder("float", [None, features])
+        self.output = tf.matmul(self.state_ph, hidden_weights)
+        self.actions_ph = tf.placeholder("float", [None, len(actions)])
+        loss = tf.reduce_mean(tf.square(self.output - actions))
+        self.train_operation = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+
+    def load(self):
+        saver = tf.train.Saver()
+        try:
+            saver.restore(self.session, "agents/models/" + self.name + ".cpkt")
+        except ValueError:
+            self.session.run(tf.initialize_all_variables())
+
+    def save(self):
+        saver = tf.train.Saver()
+        saver.save(self.session, "agents/models/model" + self.name + ".cpkt")
+
+    def get_action(self, state):
+        return self.session.run(self.output, feed_dict={self.state_ph: [state]})[0]
+
+    def train(self, states, rewards):
         self.session.run(self.train_operation, feed_dict={
             self.state_ph: states,
             self.actions_ph: rewards})

@@ -34,7 +34,7 @@ WRONG_MOVES = 0
 
 main_agent_type = TensorFlowAgent
 SAVE_STEP = 1000
-LIMITER = None
+LIMITER = 10000
 
 
 def main(agent_type, no_print=False):
