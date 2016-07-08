@@ -30,9 +30,13 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.choices = deque()
         self.game = game
         self.lookahead_prob = lookahead_prob
-        self.decider = TensorFlowPerceptron(self.name + "-network1", self.features, self.actions, learning_rate=self.alpha)
-        self.evaluator = TensorFlowPerceptron(self.name + "-network2", self.features, self.actions, learning_rate=self.alpha)
-        self.intuition = TensorFlowPerceptron(self.name + "-intuition", self.features, [0, 1], learning_rate=self.alpha)
+        self.choice_options = [0, 1]
+        self.decider = TensorFlowPerceptron(self.name + "-network1",
+                                            self.features, self.actions, learning_rate=self.alpha)
+        self.evaluator = TensorFlowPerceptron(self.name + "-network2",
+                                              self.features, self.actions, learning_rate=self.alpha)
+        self.intuition = TensorFlowPerceptron(self.name + "-intuition",
+                                              self.features, self.choice_options, learning_rate=self.alpha)
         self.thinker = LookAhead(actions=actions)
         self.load()
 
@@ -65,9 +69,12 @@ class AutoLookAheadTensorFlowAgent(Agent):
         return self.thinker.find_best(game=Game(game_board=self.game.copy_gameboard(), spawning=False))
 
     def get_actions(self, state):
-        actions = self.intuition.get_action(state)
-        max_val = max(actions)
-        action = random.choice(np.where(actions == max_val)[0])
+        if random.uniform(0, 1) > self.exploration:
+            actions = self.intuition.get_action(state)
+            max_val = max(actions)
+            action = random.choice(np.where(actions == max_val)[0])
+        else:
+            action = random.choice(self.choice_options)
         if action == 0 or (len(self.episodes) > 0 > self.episodes[-1].reward and self.episodes[-1].choice == 1):
             return self._get_e_greedy_action(state, self.exploration), action
         elif action == 1:
