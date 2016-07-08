@@ -10,12 +10,8 @@ $(function () {
 
         var scores_preprocess = JSON.parse(data);
         var scores = [];
-        var max = 0;
+
         for (var i=0; i<scores_preprocess.length; i+=1) {
-            if (scores_preprocess[i].score > max) {
-                max = scores_preprocess[i].score
-            }
-             $("p#max_val").html(max);
             scores.push([i, scores_preprocess[i].score]);
         }
         $.get( "analytics/get_fitted_line", function( data ) {
