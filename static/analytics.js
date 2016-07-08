@@ -2,15 +2,20 @@ $(function () {
 
     $.get("/analytics/get_stats", function( data ) {
         stats = JSON.parse(data);
-        $("p#game_cnt_val").html(stats["count"])
-        $("p#max_score_val").html(stats["max"])
+        $("p#game_cnt_val").html(stats["count"]);
+        $("p#max_score_val").html(stats["max"]);
     });
 
     $.get( "analytics/get_scores", function( data ) {
 
         var scores_preprocess = JSON.parse(data);
         var scores = [];
+        var max = 0;
         for (var i=0; i<scores_preprocess.length; i+=1) {
+            if (scores_preprocess[i].score > max) {
+                max = scores_preprocess[i].score
+            }
+             $("p#max_val").html(max);
             scores.push([i, scores_preprocess[i].score]);
         }
         $.get( "analytics/get_fitted_line", function( data ) {

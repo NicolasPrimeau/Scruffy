@@ -8,7 +8,7 @@ from deap import tools
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=6, mutation_prob=0.2, crossover_prob=0.5, n_steps=60, pop_size=100,
+    def __init__(self, actions, lookahead=6, mutation_prob=0.2, crossover_prob=0.5, n_steps=40, pop_size=50,
                  discounted=0.9):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
