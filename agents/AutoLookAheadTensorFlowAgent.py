@@ -75,9 +75,10 @@ class AutoLookAheadTensorFlowAgent(Agent):
             action = random.choice(np.where(actions == max_val)[0])
         else:
             action = random.choice(self.choice_options)
+            
         if action == 0 or (len(self.episodes) > 0 > self.episodes[-1].reward and self.episodes[-1].choice == 1):
             return self._get_e_greedy_action(state, self.exploration), action
-        elif action == 1:
+        else:
             return self._get_ga_actions(), action
 
     def _get_e_greedy_action(self, state, exploration=None):
