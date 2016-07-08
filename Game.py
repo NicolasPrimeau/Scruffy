@@ -202,7 +202,7 @@ class Game:
         return self.game_board
 
     def copy_gameboard(self):
-        return copy.copy(self.game_board)
+        return [copy.deepcopy(self.game_board[i]) for i in range(len(self.game_board))]
 
     def print_gameboard(self):
         print("-" * 10)

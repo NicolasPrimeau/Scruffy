@@ -5,10 +5,12 @@ from deap import base
 from deap import creator
 from deap import tools
 
+from Game import Game
+
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=6, mutation_prob=0.2, crossover_prob=0.5, n_steps=40, pop_size=50,
+    def __init__(self, actions, lookahead=5, mutation_prob=0.5, crossover_prob=0.5, n_steps=20, pop_size=20,
                  discounted=0.9):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -47,20 +49,24 @@ class LookAhead:
         return individual,
 
     def reward(self, individual):
+        game = Game(game_board=self.game_player.copy_gameboard(), spawning=False)
         reward = 0
         cnt = 0
         for action in individual:
-            reward = self.game_player.do_action(action)
-            reward += reward * (self.discounted ** cnt)
-            cnt += 1
-        return reward, 0
+            if action in game.get_illegal_actions():
+                return -2048,
+            this_reward = game.do_action(action) * (self.discounted ** cnt)
+            if this_reward < 0:
+                return -2048,
+            reward += this_reward * (self.discounted ** cnt)
+        return reward,
 
     def find_solution(self):
         random.seed(64)
         pop = self.toolbox.population(n=self.pop_size)
         hof = tools.HallOfFame(1)
-
+        stats = tools.Statistics(lambda ind: ind.fitness.values)
+        stats.register("max", max)
         pop, log = algorithms.eaSimple(pop, self.toolbox, cxpb=self.cxprob, mutpb=self.mxprob, ngen=self.ngen,
-                                       halloffame=hof, verbose=False)
-
+                                       halloffame=hof, verbose=False, stats=stats)
         return pop, log, hof

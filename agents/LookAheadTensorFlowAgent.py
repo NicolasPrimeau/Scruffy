@@ -70,6 +70,8 @@ class LookAheadTensorFlowAgent(Agent):
             return [random.choice(self.actions)]
 
     def give_reward(self, reward):
+        if reward < 0:
+            self.action_queue.clear()
         self.episodes[-1].reward = reward
 
     def _experience_replay(self):
