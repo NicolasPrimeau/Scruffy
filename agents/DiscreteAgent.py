@@ -84,6 +84,9 @@ class DiscreteAgent(Agent):
                     states.update({'_id': eligibles[-idx][0]['_id']}, eligibles[-idx][0])
                 eligibles.append((record, episode.action))
 
+    def clean(self):
+        self.episodes[:] = []
+
 
 def create_new_entry(state, collection, actions):
     new_entry = dict()

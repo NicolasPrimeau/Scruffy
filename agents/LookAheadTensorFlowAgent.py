@@ -105,6 +105,10 @@ class LookAheadTensorFlowAgent(Agent):
             self.games = 0
             self.decider, self.evaluator = self.evaluator, self.decider
 
+    def clean(self):
+        self.episodes[:] = []
+        self.previous.clear()
+
 
 class TensorFlowPerceptron:
 

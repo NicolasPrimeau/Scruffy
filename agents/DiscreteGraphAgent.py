@@ -110,3 +110,6 @@ class DiscreteGraphAgent(Agent):
         print(padding + str(node.feature) + ", " + str(node.feature_id))
         for key in node.children:
             self._recursive_print_tree(node.children[key], padding + "\t")
+
+    def clean(self):
+        self.episodes[:] = []

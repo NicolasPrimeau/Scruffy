@@ -137,3 +137,6 @@ class DiscreteTreeAgent(Agent):
         node.children[state[level]] = TreeNode(node, self.actions)
         node.children[state[level]].action_values = node.action_values.copy()
         return node.children[state[level]]
+
+    def clean(self):
+        self.episodes[:] = []

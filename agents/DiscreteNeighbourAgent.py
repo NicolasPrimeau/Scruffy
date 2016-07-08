@@ -93,6 +93,9 @@ class DiscreteNeighbourAgent(Agent):
                 record["actions"][str(episode.action)] += reward
                 states.update({'_id': record['_id']}, record)
 
+    def clean(self):
+        self.episodes[:] = []
+
 
 def create_new_entry(state, collection, actions):
     new_entry = dict()

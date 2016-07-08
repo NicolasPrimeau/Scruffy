@@ -82,6 +82,9 @@ class ClusterAgent(Agent):
 
         print("Num clusters" + str(len(self.clusters)))
 
+    def clean(self):
+        self.episodes[:] = []
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.client is not None:
             self.client.close()

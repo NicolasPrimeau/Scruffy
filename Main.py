@@ -109,9 +109,9 @@ def restart_handler():
     reward = request.json["reward"]
     score = request.json["score"]
     global AGENT
-
     #AGENT.give_reward(float(reward))
     #AGENT.learn()
+    AGENT.clean()
     AGENT.load()
     return json.dumps({"game_id": game_id}), 201
 

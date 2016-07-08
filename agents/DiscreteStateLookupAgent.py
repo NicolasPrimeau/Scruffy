@@ -67,3 +67,6 @@ class DiscreteStateLookupAgent(Agent):
         else:
             action = action_values.index(max(action_values))
         return action, action_values[action]
+
+    def clean(self):
+        self.episodes[:] = []
