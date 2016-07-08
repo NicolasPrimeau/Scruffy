@@ -44,32 +44,24 @@ def home():
 @app.route("/analytics")
 def analytics():
     global AGENT
-    if AGENT is None:
-        setup()
     return render_template('analytics.html')
 
 
 @app.route("/analytics/get_scores", methods=['GET'])
 def get_reward_data():
     global AGENT
-    if AGENT is None:
-        setup()
     return Analytics.get_reward_data(AGENT)
 
 
 @app.route("/analytics/get_fitted_line", methods=['GET'])
 def get_line():
     global AGENT
-    if AGENT is None:
-        setup()
     return Analytics.get_fitted_line(AGENT)
 
 
 @app.route("/analytics/get_stats", methods=['GET'])
 def get_stats():
     global AGENT
-    if AGENT is None:
-        setup()
     return Analytics.get_stats(AGENT)
 
 
@@ -82,25 +74,27 @@ def api_home():
 @app.route("/api/initialize", methods=['POST'])
 def initialize():
     global game_id
-    setup()
+    #setup()
+    game_id += 1
     return json.dumps({"game_id": game_id}), 201
 
+
 setting_up = False
+
+
 def setup():
     global AGENT, Exploration, setting_up, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
     if not setting_up and AGENT is None:
-      setting_up = True
-      AGENT = AGENT_TYPE(game=Game(), actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+        setting_up = True
+        AGENT = AGENT_TYPE(game=Game(), actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
                        elligibility_trace=True)
+        setting_up = False
     random.seed()
-    game_id += 1
 
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
     global AGENT
-    if AGENT is None:
-        setup()
     state = request.json["state"]
     illegals = request.json["illegals"]
     action = AGENT.get_action(state)
@@ -114,8 +108,6 @@ def get_next_action_handler():
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
     global AGENT
-    if AGENT is None:
-        setup()
     reward = request.json["reward"]
     #AGENT.give_reward(float(reward))
     return json.dumps({"game_id": game_id}), 201
@@ -126,8 +118,7 @@ def restart_handler():
     reward = request.json["reward"]
     score = request.json["score"]
     global AGENT
-    if AGENT is None:
-        setup()
+
     #AGENT.give_reward(float(reward))
     #AGENT.learn()
     AGENT.load()
@@ -149,4 +140,5 @@ def get_analytics():
 
 
 if __name__ == "__main__":
+    setup()
     app.run(host="0.0.0.0", threaded=True)
