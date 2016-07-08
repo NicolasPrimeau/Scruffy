@@ -2,6 +2,7 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import Analytics
+from Game import Game
 
 from agents.ClusterAgent import ClusterAgent
 from agents.DiscreteAgent import DiscreteAgent
@@ -9,6 +10,7 @@ from agents.DiscreteGraphAgent import DiscreteGraphAgent
 from agents.DiscreteNeighbourAgent import DiscreteNeighbourAgent
 from agents.DiscreteStateLookupAgent import DiscreteStateLookupAgent
 from agents.DiscreteTreeAgent import DiscreteTreeAgent
+from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
 from agents.NeuralNetAgent import NeuralNetAgent
 from agents.TensorFlowAgent import TensorFlowAgent
 
@@ -21,7 +23,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = TensorFlowAgent
+AGENT_TYPE = LookAheadTensorFlowAgent
 AGENT = None
 game_id = 0
 
@@ -88,7 +90,7 @@ def setup():
     global AGENT, Exploration, setting_up, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
     if not setting_up and AGENT is None:
       setting_up = True
-      AGENT = AGENT_TYPE(actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+      AGENT = AGENT_TYPE(game=Game(), actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
                        elligibility_trace=True)
     random.seed()
     game_id += 1

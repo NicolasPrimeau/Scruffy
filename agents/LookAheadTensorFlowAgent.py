@@ -6,16 +6,17 @@ from agents.Agent import Agent, map_state_to_inputs
 import numpy as np
 import tensorflow as tf
 
+from agents.agent_tools.LookAhead import LookAhead
 from rl.Episode import Episode
 
-# Double DQN
+# Double DQN with GA lookahead
 
 
-class TensorFlowAgent(Agent):
+class LookAheadTensorFlowAgent(Agent):
 
-    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=4,
-                 double_q_learning_steps=100, **kwargs):
-        super().__init__(actions, name="TensorFlowAgent", kwargs=kwargs)
+    def __init__(self, actions, features, game, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=4,
+                 double_q_learning_steps=100, lookahead_prob=0.1, **kwargs):
+        super().__init__(actions, name="LookAheadTensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
         self.features = features
@@ -25,9 +26,13 @@ class TensorFlowAgent(Agent):
         self.experience_replays = experience_replays
         self.dqls = double_q_learning_steps
         self.games = 0
+        self.action_queue = deque()
+        self.game = game
+        self.lookahead_prob = lookahead_prob
 
         self.decider = TensorFlowPerceptron("network1", self.features, self.actions, learning_rate=self.alpha)
         self.evaluator = TensorFlowPerceptron("network2", self.features, self.actions, learning_rate=self.alpha)
+        self.thinker = LookAhead(actions=actions)
         self.load()
 
     def load(self):
@@ -38,22 +43,31 @@ class TensorFlowAgent(Agent):
         self.decider.save()
         self.evaluator.load()
 
+    def get_action_values(self, s):
+        return self.decider.get_action(s)
+
     def get_action(self, s):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
-        actions = self.decider.get_action(s)
-        action = self._get_e_greedy_action(actions, self.exploration)
+        if len(self.action_queue) == 0:
+            actions = self.get_action_values(s)
+            self.action_queue.extend(self._get_e_greedy_action(actions, self.exploration))
+        action = self.action_queue.popleft()
         e = Episode(s, action, 0)
-        e.actions = actions
         self.episodes.append(e)
         return action
+
+    def _get_ga_actions(self):
+        return self.thinker.find_best(game=Game(game_board=self.game.copy_gameboard(), spawning=False))
 
     def _get_e_greedy_action(self, actions, exploration):
         if exploration is None or (exploration is not None and random.uniform(0, 1) > exploration):
             max_val = max(actions)
             action = np.where(actions == max_val)[0]
-            return random.choice(action)
+            return [random.choice(action)]
+        elif random.uniform(0, 1) < self.lookahead_prob:
+            return self._get_ga_actions()
         else:
-            return random.choice(self.actions)
+            return [random.choice(self.actions)]
 
     def give_reward(self, reward):
         self.episodes[-1].reward = reward
@@ -78,7 +92,7 @@ class TensorFlowAgent(Agent):
             reward = episode.reward
             if len(episodes) != 0:
                 next_episode = episodes[0]
-                next_action = self._get_e_greedy_action(next_episode.actions, exploration=None)
+                next_action = self._get_e_greedy_action(self.get_action_values(next_episode.state), exploration=None)
                 next_actions = self.evaluator.get_action(next_episode.state)
                 reward += self.gamma * next_actions[next_action]
             ar[episode.action] = reward
