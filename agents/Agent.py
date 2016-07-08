@@ -6,7 +6,7 @@ from pymongo import MongoClient
 class Agent:
 
     def __init__(self, actions, name=None, database="AI2048", **kwargs):
-        self.decision_maker = None
+        self.intuition = None
         self.name = name
         self.actions = actions
         self.database = database

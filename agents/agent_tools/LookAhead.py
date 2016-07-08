@@ -10,7 +10,7 @@ from Game import Game
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=5, mutation_prob=0.5, crossover_prob=0.5, n_steps=20, pop_size=20,
+    def __init__(self, actions, lookahead=5, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=20,
                  discounted=0.9):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -58,7 +58,7 @@ class LookAhead:
             this_reward = game.do_action(action) * (self.discounted ** cnt)
             if this_reward < 0:
                 return -2048,
-            reward += this_reward * (self.discounted ** cnt)
+            reward += this_reward
         return reward,
 
     def find_solution(self):

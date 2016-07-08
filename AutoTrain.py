@@ -6,15 +6,8 @@ import os
 
 import warnings
 
-from agents.ClusterAgent import ClusterAgent
-from agents.DiscreteAgent import DiscreteAgent
-from agents.DiscreteGraphAgent import DiscreteGraphAgent
-from agents.DiscreteNeighbourAgent import DiscreteNeighbourAgent
-from agents.DiscreteTreeAgent import DiscreteTreeAgent
+from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
 from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
-from agents.NeuralNetAgent import NeuralNetAgent
-from agents.DiscreteStateLookupAgent import DiscreteStateLookupAgent
-from agents.TensorFlowAgent import TensorFlowAgent
 
 warnings.filterwarnings("ignore")
 
@@ -33,8 +26,8 @@ GAMMA = 0.9
 Exploration = 0.05
 WRONG_MOVES = 0
 
-main_agent_type = LookAheadTensorFlowAgent
-SAVE_STEP = 100
+main_agent_type = AutoLookAheadTensorFlowAgent
+SAVE_STEP = 1000
 LIMITER = None
 
 
@@ -43,7 +36,7 @@ def main(agent_type, no_print=False):
         sys.stdout = open(os.devnull, 'w')
     global MAX_SCORE, LIMITER, GRID_SIZE
     game = Game()
-    agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
+    agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2,
                        elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5, game=game)
     game.restart()
     MAX_SCORE = Database.get_high_score(agent.name)

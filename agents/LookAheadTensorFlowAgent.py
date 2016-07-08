@@ -14,8 +14,8 @@ from rl.Episode import Episode
 
 class LookAheadTensorFlowAgent(Agent):
 
-    def __init__(self, actions, features, game, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=4,
-                 double_q_learning_steps=100, lookahead_prob=0.1, **kwargs):
+    def __init__(self, actions, features, game, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3,
+                 double_q_learning_steps=50, lookahead_prob=0.2, **kwargs):
         super().__init__(actions, name="LookAheadTensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
@@ -49,8 +49,11 @@ class LookAheadTensorFlowAgent(Agent):
     def get_action(self, s):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
         if len(self.action_queue) == 0:
-            actions = self.get_action_values(s)
-            self.action_queue.extend(self._get_e_greedy_action(actions, self.exploration))
+            if random.uniform(0, 1) < self.lookahead_prob:
+                self.action_queue.extend(self._get_ga_actions())
+            else:
+                actions = self.get_action_values(s)
+                self.action_queue.extend(self._get_e_greedy_action(actions, self.exploration))
         action = self.action_queue.popleft()
         e = Episode(s, action, 0)
         self.episodes.append(e)
@@ -64,14 +67,10 @@ class LookAheadTensorFlowAgent(Agent):
             max_val = max(actions)
             action = np.where(actions == max_val)[0]
             return [random.choice(action)]
-        elif random.uniform(0, 1) < self.lookahead_prob:
-            return self._get_ga_actions()
         else:
             return [random.choice(self.actions)]
 
     def give_reward(self, reward):
-        if reward < 0:
-            self.action_queue.clear()
         self.episodes[-1].reward = reward
 
     def _experience_replay(self):

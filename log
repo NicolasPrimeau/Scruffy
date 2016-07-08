@@ -1,4 +1,3 @@
-[2016-07-05 23:49:07,107] ERROR in app: Exception on /api/get_action [POST]
 Traceback (most recent call last):
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 715, in _do_call
     return fn(*args)
@@ -8,34 +7,24 @@ Traceback (most recent call last):
     next(self.gen)
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/errors.py", line 450, in raise_exception_on_not_ok_status
     pywrap_tensorflow.TF_GetCode(status))
-tensorflow.python.framework.errors.InvalidArgumentError: Assign requires shapes of both tensors to match. lhs shape= [4,4] rhs shape= [16,4]
-	 [[Node: save/Assign_2 = Assign[T=DT_FLOAT, _class=["loc:@Variable"], use_locking=true, validate_shape=true, _device="/job:localhost/replica:0/task:0/cpu:0"](Variable/Adam_1, save/restore_slice_2)]]
+tensorflow.python.framework.errors.FailedPreconditionError: Attempting to use uninitialized value Variable_2
+	 [[Node: Variable_2/read = Identity[T=DT_FLOAT, _class=["loc:@Variable_2"], _device="/job:localhost/replica:0/task:0/cpu:0"](Variable_2)]]
 
 During handling of the above exception, another exception occurred:
 
 Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 101, in get_next_action_handler
-    setup()
-  File "./Main.py", line 92, in setup
-    elligibility_trace=True)
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 27, in __init__
-    self.load()
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 32, in load
-    saver.restore(self.session, "agents/models/model.ckpt")
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 1105, in restore
-    {self.saver_def.filename_tensor_name: save_path})
+  File "./AutoTrain.py", line 108, in <module>
+    main(main_agent_type)
+  File "./AutoTrain.py", line 53, in main
+    step(game, agent)
+  File "./AutoTrain.py", line 85, in step
+    action = agent.get_action(CUR_STATE)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 54, in get_action
+    actions, choice = self.get_actions(s)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 67, in get_actions
+    actions = self.intuition.get_action(state)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 151, in get_action
+    return self.session.run(self.output, feed_dict={self.state_ph: [state]})[0]
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 372, in run
     run_metadata_ptr)
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 636, in _run
@@ -44,55 +33,23 @@ Traceback (most recent call last):
     target_list, options, run_metadata)
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 728, in _do_call
     raise type(e)(node_def, op, message)
-tensorflow.python.framework.errors.InvalidArgumentError: Assign requires shapes of both tensors to match. lhs shape= [4,4] rhs shape= [16,4]
-	 [[Node: save/Assign_2 = Assign[T=DT_FLOAT, _class=["loc:@Variable"], use_locking=true, validate_shape=true, _device="/job:localhost/replica:0/task:0/cpu:0"](Variable/Adam_1, save/restore_slice_2)]]
-Caused by op 'save/Assign_2', defined at:
-  File "/usr/lib/python3.5/threading.py", line 882, in _bootstrap
-    self._bootstrap_inner()
-  File "/usr/lib/python3.5/threading.py", line 914, in _bootstrap_inner
-    self.run()
-  File "/usr/lib/python3.5/threading.py", line 862, in run
-    self._target(*self._args, **self._kwargs)
-  File "/usr/lib/python3.5/socketserver.py", line 625, in process_request_thread
-    self.finish_request(request, client_address)
-  File "/usr/lib/python3.5/socketserver.py", line 354, in finish_request
-    self.RequestHandlerClass(request, client_address, self)
-  File "/usr/lib/python3.5/socketserver.py", line 681, in __init__
-    self.handle()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 216, in handle
-    rv = BaseHTTPRequestHandler.handle(self)
-  File "/usr/lib/python3.5/http/server.py", line 415, in handle
-    self.handle_one_request()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 251, in handle_one_request
-    return self.run_wsgi()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 193, in run_wsgi
-    execute(self.server.app)
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 181, in execute
-    application_iter = app(environ, start_response)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 2000, in __call__
-    return self.wsgi_app(environ, start_response)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 101, in get_next_action_handler
-    setup()
-  File "./Main.py", line 92, in setup
-    elligibility_trace=True)
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 27, in __init__
-    self.load()
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 30, in load
-    saver = tf.train.Saver()
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 845, in __init__
-    restore_sequentially=restore_sequentially)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 515, in build
-    filename_tensor, vars_to_save, restore_sequentially, reshape)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 281, in _AddRestoreOps
-    validate_shape=validate_shape))
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/gen_state_ops.py", line 45, in assign
-    use_locking=use_locking, name=name)
+tensorflow.python.framework.errors.FailedPreconditionError: Attempting to use uninitialized value Variable_2
+	 [[Node: Variable_2/read = Identity[T=DT_FLOAT, _class=["loc:@Variable_2"], _device="/job:localhost/replica:0/task:0/cpu:0"](Variable_2)]]
+Caused by op 'Variable_2/read', defined at:
+  File "./AutoTrain.py", line 108, in <module>
+    main(main_agent_type)
+  File "./AutoTrain.py", line 48, in main
+    elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5, game=game)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 36, in __init__
+    self.intuition = TensorFlowPerceptron(self.name + "-intuition", self.features, self.choices, learning_rate=self.alpha)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 132, in __init__
+    hidden_weights = tf.Variable(tf.constant(0., shape=[features, len(actions)]))
+  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/variables.py", line 211, in __init__
+    dtype=dtype)
+  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/variables.py", line 319, in _init_from_args
+    self._snapshot = array_ops.identity(self._variable, name="read")
+  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/gen_array_ops.py", line 831, in identity
+    result = _op_def_lib.apply_op("Identity", input=input, name=name)
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/op_def_library.py", line 704, in apply_op
     op_def=op_def)
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 2260, in create_op
@@ -100,411 +57,3 @@ Caused by op 'save/Assign_2', defined at:
   File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 1230, in __init__
     self._traceback = _extract_stack()
 
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 715, in _do_call
-    return fn(*args)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 697, in _run_fn
-    status, run_metadata)
-  File "/usr/lib/python3.5/contextlib.py", line 66, in __exit__
-    next(self.gen)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/errors.py", line 450, in raise_exception_on_not_ok_status
-    pywrap_tensorflow.TF_GetCode(status))
-tensorflow.python.framework.errors.InvalidArgumentError: Assign requires shapes of both tensors to match. lhs shape= [4,4] rhs shape= [16,4]
-	 [[Node: save/Assign_2 = Assign[T=DT_FLOAT, _class=["loc:@Variable"], use_locking=true, validate_shape=true, _device="/job:localhost/replica:0/task:0/cpu:0"](Variable/Adam_1, save/restore_slice_2)]]
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 101, in get_next_action_handler
-    setup()
-  File "./Main.py", line 92, in setup
-    elligibility_trace=True)
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 27, in __init__
-    self.load()
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 32, in load
-    saver.restore(self.session, "agents/models/model.ckpt")
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 1105, in restore
-    {self.saver_def.filename_tensor_name: save_path})
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 372, in run
-    run_metadata_ptr)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 636, in _run
-    feed_dict_string, options, run_metadata)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 708, in _do_run
-    target_list, options, run_metadata)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 728, in _do_call
-    raise type(e)(node_def, op, message)
-tensorflow.python.framework.errors.InvalidArgumentError: Assign requires shapes of both tensors to match. lhs shape= [4,4] rhs shape= [16,4]
-	 [[Node: save/Assign_2 = Assign[T=DT_FLOAT, _class=["loc:@Variable"], use_locking=true, validate_shape=true, _device="/job:localhost/replica:0/task:0/cpu:0"](Variable/Adam_1, save/restore_slice_2)]]
-Caused by op 'save/Assign_2', defined at:
-  File "/usr/lib/python3.5/threading.py", line 882, in _bootstrap
-    self._bootstrap_inner()
-  File "/usr/lib/python3.5/threading.py", line 914, in _bootstrap_inner
-    self.run()
-  File "/usr/lib/python3.5/threading.py", line 862, in run
-    self._target(*self._args, **self._kwargs)
-  File "/usr/lib/python3.5/socketserver.py", line 625, in process_request_thread
-    self.finish_request(request, client_address)
-  File "/usr/lib/python3.5/socketserver.py", line 354, in finish_request
-    self.RequestHandlerClass(request, client_address, self)
-  File "/usr/lib/python3.5/socketserver.py", line 681, in __init__
-    self.handle()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 216, in handle
-    rv = BaseHTTPRequestHandler.handle(self)
-  File "/usr/lib/python3.5/http/server.py", line 415, in handle
-    self.handle_one_request()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 251, in handle_one_request
-    return self.run_wsgi()
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 193, in run_wsgi
-    execute(self.server.app)
-  File "/usr/local/lib/python3.5/dist-packages/werkzeug/serving.py", line 181, in execute
-    application_iter = app(environ, start_response)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 2000, in __call__
-    return self.wsgi_app(environ, start_response)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 101, in get_next_action_handler
-    setup()
-  File "./Main.py", line 92, in setup
-    elligibility_trace=True)
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 27, in __init__
-    self.load()
-  File "/home/nixon/PycharmProjects/2048AI/agents/TensorFlowAgent.py", line 30, in load
-    saver = tf.train.Saver()
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 845, in __init__
-    restore_sequentially=restore_sequentially)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 515, in build
-    filename_tensor, vars_to_save, restore_sequentially, reshape)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/training/saver.py", line 281, in _AddRestoreOps
-    validate_shape=validate_shape))
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/gen_state_ops.py", line 45, in assign
-    use_locking=use_locking, name=name)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/op_def_library.py", line 704, in apply_op
-    op_def=op_def)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 2260, in create_op
-    original_op=self._default_original_op, op_def=op_def)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 1230, in __init__
-    self._traceback = _extract_stack()
-
-[2016-07-05 23:49:07,123] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:07,490] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:07,990] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:08,490] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:08,990] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:09,489] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:09,989] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:10,489] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-[2016-07-05 23:49:10,989] ERROR in app: Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'
-ERROR:__main__:Exception on /api/get_action [POST]
-Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1988, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1641, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1544, in handle_user_exception
-    reraise(exc_type, exc_value, tb)
-  File "/usr/local/lib/python3.5/dist-packages/flask/_compat.py", line 33, in reraise
-    raise value
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1639, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/usr/local/lib/python3.5/dist-packages/flask/app.py", line 1625, in dispatch_request
-    return self.view_functions[rule.endpoint](**req.view_args)
-  File "./Main.py", line 104, in get_next_action_handler
-    action = AGENT.get_action(state)
-AttributeError: 'NoneType' object has no attribute 'get_action'

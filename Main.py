@@ -3,16 +3,7 @@ import json
 import random
 import Analytics
 from Game import Game
-
-from agents.ClusterAgent import ClusterAgent
-from agents.DiscreteAgent import DiscreteAgent
-from agents.DiscreteGraphAgent import DiscreteGraphAgent
-from agents.DiscreteNeighbourAgent import DiscreteNeighbourAgent
-from agents.DiscreteStateLookupAgent import DiscreteStateLookupAgent
-from agents.DiscreteTreeAgent import DiscreteTreeAgent
-from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
-from agents.NeuralNetAgent import NeuralNetAgent
-from agents.TensorFlowAgent import TensorFlowAgent
+from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
 
 app = Flask(__name__)
 
@@ -23,7 +14,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = LookAheadTensorFlowAgent
+AGENT_TYPE = AutoLookAheadTensorFlowAgent
 AGENT = None
 game_id = 0
 
