@@ -2,8 +2,8 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import Analytics
-from Game import Game
-from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
+from agents.Agent import map_state_to_inputs
+from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent, translate_state_to_game_board
 
 app = Flask(__name__)
 
@@ -65,7 +65,6 @@ def api_home():
 @app.route("/api/initialize", methods=['POST'])
 def initialize():
     global game_id
-    #setup()
     game_id += 1
     return json.dumps({"game_id": game_id}), 201
 
@@ -77,8 +76,8 @@ def setup():
     global AGENT, Exploration, setting_up, ALPHA, GAMMA, ACTIONS, game_id, GRID_SIZE
     if not setting_up and AGENT is None:
         setting_up = True
-        AGENT = AGENT_TYPE(game=Game(), actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA, exploration=Exploration,
-                       elligibility_trace=True)
+        AGENT = AGENT_TYPE(actions=ACTIONS, features=GRID_SIZE**2, game_size=4, alpha=ALPHA, gamma=GAMMA,
+                           exploration=Exploration, elligibility_trace=True)
         setting_up = False
     random.seed()
 
@@ -90,9 +89,7 @@ def get_next_action_handler():
     illegals = request.json["illegals"]
     action = AGENT.get_action(state)
     illegals = [int(i) for i in illegals]
-    while action in illegals:
-        #AGENT.give_reward(-100)
-        action = AGENT.get_action(state)
+    action = AGENT.get_action(translate_state_to_game_board(map_state_to_inputs(state)))
     return json.dumps({"action": str(action)}), 200
 
 
@@ -100,7 +97,6 @@ def get_next_action_handler():
 def update_reward_handler():
     global AGENT
     reward = request.json["reward"]
-    #AGENT.give_reward(float(reward))
     return json.dumps({"game_id": game_id}), 201
 
 
@@ -109,8 +105,6 @@ def restart_handler():
     reward = request.json["reward"]
     score = request.json["score"]
     global AGENT
-    #AGENT.give_reward(float(reward))
-    #AGENT.learn()
     AGENT.clean()
     AGENT.load()
     return json.dumps({"game_id": game_id}), 201

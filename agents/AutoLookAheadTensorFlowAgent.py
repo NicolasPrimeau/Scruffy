@@ -7,6 +7,7 @@ from agents.Agent import Agent, map_state_to_inputs
 import numpy as np
 import tensorflow as tf
 
+import copy
 from agents.agent_tools.LookAhead import LookAhead
 from rl.Episode import Episode
 
@@ -15,7 +16,7 @@ from rl.Episode import Episode
 
 class AutoLookAheadTensorFlowAgent(Agent):
 
-    def __init__(self, actions, features, game, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3,
+    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3,
                  double_q_learning_steps=50, lookahead_prob=0.2, **kwargs):
         super().__init__(actions, name="AutoLookAheadTensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
@@ -29,7 +30,6 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.games = 0
         self.action_queue = deque()
         self.choice_queue = deque()
-        self.game = game
         self.lookahead_prob = lookahead_prob
         self.choice_options = (0, 1)
         self.decider = TensorFlowPerceptron(self.name + "-network1",
@@ -55,19 +55,19 @@ class AutoLookAheadTensorFlowAgent(Agent):
         return self.decider.get_action(s)
 
     def get_action(self, s):
-        s = np.array(map_state_to_inputs(s)).astype(np.float)
+        state = np.array(map_state_to_inputs(s)).astype(np.float)
         if len(self.action_queue) == 0:
-            actions, choice = self._get_actions(s)
+            actions, choice = self._get_actions(state)
             self.choice_queue.extend([choice] * len(actions))
             self.action_queue.extend(actions)
         action = self.action_queue.popleft()
-        e = Episode(s, action, 0)
+        e = Episode(state, action, 0)
         e.choice = self.choice_queue.popleft()
         self.episodes.append(e)
         return action
 
-    def _get_ga_actions(self):
-        return self.thinker.find_best(game=Game(game_board=self.game.copy_gameboard(), spawning=False))
+    def _get_ga_actions(self, state):
+        return self.thinker.find_best(board=translate_state_to_game_board(state))
 
     def _get_actions(self, state):
         if random.uniform(0, 1) > self.exploration:
@@ -80,13 +80,14 @@ class AutoLookAheadTensorFlowAgent(Agent):
         if choice == 0:
             action = self._get_e_greedy_action(state, exploration=self.exploration)
         elif choice == 1:
-            action = self._get_ga_actions()
+            action = self._get_ga_actions(state)
         else:
             raise ValueError("No")
 
         if action is None:
             print("GA Failed")
-            action = [random.choice(self.game.get_legal_actions())]
+            model = Game(game_board=translate_state_to_game_board(state), spawning=False)
+            action = [random.choice(model.get_legal_actions())]
             choice = 0
 
         return action, choice
@@ -189,3 +190,13 @@ class TensorFlowPerceptron:
             self.session.run(self.train_operation, feed_dict={
                 self.state_ph: states,
                 self.actions_ph: rewards})
+
+
+def translate_state_to_game_board(state):
+    return [[int(item) if int(item) != 0 else None for item in row] for row in list(chunks(state, 4))]
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield copy.deepcopy(l[i:i+n])

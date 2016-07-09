@@ -37,8 +37,8 @@ class LookAhead:
         self.toolbox.register("mutate", self.mutate_action, indpb=mutation_prob)
         self.toolbox.register("select", tools.selTournament, tournsize=3)
 
-    def find_best(self, game):
-        self.game_player = game
+    def find_best(self, board):
+        self.game_player = Game(game_board=board, spawning=False)
         pop, log, hof = self.find_solution()
         if int(hof[0].fitness.values[0]) != -2048:
             return hof[0]

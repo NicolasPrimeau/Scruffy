@@ -215,7 +215,7 @@ class Game:
     def get_state(self):
         state = dict()
         score = 0
-        gameboard = self.get_gameboard()
+        gameboard = self.copy_gameboard()
         for i in range(len(gameboard)):
             for j in range(len(gameboard[i])):
                 name = str(i) + "_" + str(j)

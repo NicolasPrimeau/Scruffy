@@ -100,19 +100,17 @@ function Ai() {
 
         var action;
 
-        do {
-            $.ajax({
-                  async: false,
-                  type: "POST",
-                  contentType: "application/json; charset=utf-8",
-                  url: IP + "/api/get_action",
-                  data: JSON.stringify({"state": state, "illegals": illegals}),
-                  success: function( data ) {
-                    action = data["action"]
-                  },
-                  dataType: "json"
-                });
-        } while(illegals.indexOf(action) != -1);
+        $.ajax({
+              async: false,
+              type: "POST",
+              contentType: "application/json; charset=utf-8",
+              url: IP + "/api/get_action",
+              data: JSON.stringify({"state": state, "illegals": illegals}),
+              success: function( data ) {
+                action = data["action"]
+              },
+              dataType: "json"
+            });
 
 
         CUR_STATE = state;

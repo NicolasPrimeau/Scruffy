@@ -36,7 +36,7 @@ def main(agent_type, no_print=False):
     global MAX_SCORE, LIMITER, GRID_SIZE
     game = Game()
     agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2,
-                       elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5, game=game)
+                       elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5)
     game.restart()
     MAX_SCORE = Database.get_high_score(agent.name)
     print(str(datetime.datetime.now()) + " Starting up")

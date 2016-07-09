@@ -1,59 +1,28 @@
 Traceback (most recent call last):
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 715, in _do_call
-    return fn(*args)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 697, in _run_fn
-    status, run_metadata)
-  File "/usr/lib/python3.5/contextlib.py", line 66, in __exit__
-    next(self.gen)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/errors.py", line 450, in raise_exception_on_not_ok_status
-    pywrap_tensorflow.TF_GetCode(status))
-tensorflow.python.framework.errors.FailedPreconditionError: Attempting to use uninitialized value Variable_2
-	 [[Node: Variable_2/read = Identity[T=DT_FLOAT, _class=["loc:@Variable_2"], _device="/job:localhost/replica:0/task:0/cpu:0"](Variable_2)]]
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "./AutoTrain.py", line 108, in <module>
+  File "./AutoTrain.py", line 102, in <module>
     main(main_agent_type)
-  File "./AutoTrain.py", line 53, in main
+  File "./AutoTrain.py", line 44, in main
     step(game, agent)
-  File "./AutoTrain.py", line 85, in step
+  File "./AutoTrain.py", line 80, in step
     action = agent.get_action(CUR_STATE)
-  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 54, in get_action
-    actions, choice = self.get_actions(s)
-  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 67, in get_actions
-    actions = self.intuition.get_action(state)
-  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 151, in get_action
-    return self.session.run(self.output, feed_dict={self.state_ph: [state]})[0]
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 372, in run
-    run_metadata_ptr)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 636, in _run
-    feed_dict_string, options, run_metadata)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 708, in _do_run
-    target_list, options, run_metadata)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/client/session.py", line 728, in _do_call
-    raise type(e)(node_def, op, message)
-tensorflow.python.framework.errors.FailedPreconditionError: Attempting to use uninitialized value Variable_2
-	 [[Node: Variable_2/read = Identity[T=DT_FLOAT, _class=["loc:@Variable_2"], _device="/job:localhost/replica:0/task:0/cpu:0"](Variable_2)]]
-Caused by op 'Variable_2/read', defined at:
-  File "./AutoTrain.py", line 108, in <module>
-    main(main_agent_type)
-  File "./AutoTrain.py", line 48, in main
-    elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5, game=game)
-  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 36, in __init__
-    self.intuition = TensorFlowPerceptron(self.name + "-intuition", self.features, self.choices, learning_rate=self.alpha)
-  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 132, in __init__
-    hidden_weights = tf.Variable(tf.constant(0., shape=[features, len(actions)]))
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/variables.py", line 211, in __init__
-    dtype=dtype)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/variables.py", line 319, in _init_from_args
-    self._snapshot = array_ops.identity(self._variable, name="read")
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/gen_array_ops.py", line 831, in identity
-    result = _op_def_lib.apply_op("Identity", input=input, name=name)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/ops/op_def_library.py", line 704, in apply_op
-    op_def=op_def)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 2260, in create_op
-    original_op=self._default_original_op, op_def=op_def)
-  File "/usr/local/lib/python3.5/dist-packages/tensorflow/python/framework/ops.py", line 1230, in __init__
-    self._traceback = _extract_stack()
-
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 60, in get_action
+    actions, choice = self._get_actions(state)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 86, in _get_actions
+    action = self._get_ga_actions(game_board)
+  File "/home/nixon/PycharmProjects/2048AI/agents/AutoLookAheadTensorFlowAgent.py", line 70, in _get_ga_actions
+    return self.thinker.find_best(game=Game(game_board=game_board, spawning=False))
+  File "/home/nixon/PycharmProjects/2048AI/agents/agent_tools/LookAhead.py", line 42, in find_best
+    pop, log, hof = self.find_solution()
+  File "/home/nixon/PycharmProjects/2048AI/agents/agent_tools/LookAhead.py", line 74, in find_solution
+    halloffame=hof, verbose=False, stats=stats)
+  File "/usr/local/lib/python3.5/dist-packages/deap/algorithms.py", line 148, in eaSimple
+    for ind, fit in zip(invalid_ind, fitnesses):
+  File "/home/nixon/PycharmProjects/2048AI/agents/agent_tools/LookAhead.py", line 55, in reward
+    game = Game(game_board=self.game_player.copy_gameboard(), spawning=False)
+  File "/home/nixon/PycharmProjects/2048AI/Game.py", line 17, in __init__
+    self.game_board = [[int(item) if int(item) != 0 else None for item in row] for row in game_board]
+  File "/home/nixon/PycharmProjects/2048AI/Game.py", line 17, in <listcomp>
+    self.game_board = [[int(item) if int(item) != 0 else None for item in row] for row in game_board]
+  File "/home/nixon/PycharmProjects/2048AI/Game.py", line 17, in <listcomp>
+    self.game_board = [[int(item) if int(item) != 0 else None for item in row] for row in game_board]
+TypeError: int() argument must be a string, a bytes-like object or a number, not 'NoneType'
