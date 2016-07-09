@@ -10,7 +10,7 @@ from Game import Game
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=5, mutation_prob=0.25, crossover_prob=0.5, n_steps=30, pop_size=40,
+    def __init__(self, actions, lookahead=5, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=40,
                  discounted=0.9):
         self.mxprob = mutation_prob
         self.pop_size = pop_size

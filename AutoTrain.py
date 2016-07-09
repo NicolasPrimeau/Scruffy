@@ -7,7 +7,6 @@ import os
 import warnings
 
 from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
-from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
 
 warnings.filterwarnings("ignore")
 
@@ -52,7 +51,11 @@ def restart(game, agent):
     print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) +
           ", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD) +
           ", Wrong Moves: " + str(WRONG_MOVES))
-    agent.learn()
+    stats = agent.learn()
+    if stats is not None:
+        for key in stats:
+            print(str(key) + " : " + str(stats[key]))
+
     Database.save_score(agent.name, SCORE)
     game.restart()
     CUR_STATE = None

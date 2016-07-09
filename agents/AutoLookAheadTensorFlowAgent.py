@@ -1,5 +1,6 @@
 import random
 from collections import deque
+from collections import OrderedDict
 
 from Game import Game
 from agents.Agent import Agent, map_state_to_inputs
@@ -27,7 +28,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.dqls = double_q_learning_steps
         self.games = 0
         self.action_queue = deque()
-        self.choices = deque()
+        self.choice_queue = deque()
         self.game = game
         self.lookahead_prob = lookahead_prob
         self.choice_options = (0, 1)
@@ -57,11 +58,11 @@ class AutoLookAheadTensorFlowAgent(Agent):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
         if len(self.action_queue) == 0:
             actions, choice = self._get_actions(s)
-            self.choices.extend([choice] * len(actions))
+            self.choice_queue.extend([choice] * len(actions))
             self.action_queue.extend(actions)
         action = self.action_queue.popleft()
         e = Episode(s, action, 0)
-        e.choice = self.choices.popleft()
+        e.choice = self.choice_queue.popleft()
         self.episodes.append(e)
         return action
 
@@ -76,7 +77,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         else:
             choice = random.choice(self.choice_options)
 
-        if choice == 0 or (len(self.episodes) > 0 > self.episodes[-1].reward and self.episodes[-1].choice == 1):
+        if choice == 0:
             action = self._get_e_greedy_action(state, exploration=self.exploration)
         elif choice == 1:
             action = self._get_ga_actions()
@@ -84,7 +85,8 @@ class AutoLookAheadTensorFlowAgent(Agent):
             raise ValueError("No")
 
         if action is None:
-            action = self._get_e_greedy_action(state, exploration=0.5)
+            print("GA Failed")
+            action = [random.choice(self.game.get_legal_actions())]
             choice = 0
 
         return action, choice
@@ -108,12 +110,17 @@ class AutoLookAheadTensorFlowAgent(Agent):
     def learn(self):
         self._experience_replay()
         self.previous.append(list(self.episodes))
-        self.learn_episodes(self.episodes)
+        return self.learn_episodes(self.episodes)
 
     def learn_episodes(self, episodes):
         states = list()
         rewards = list()
         choice_rewards = list()
+        choices = OrderedDict.fromkeys(["title"])
+        choices["title"] = "Choices"
+        for option in self.choice_options:
+            choices[option] = 0
+
         while len(episodes) != 0:
             episode = episodes.pop(0)
             states.append(episode.state)
@@ -130,6 +137,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
             cr[episode.choice] = reward
             rewards.append(ar.astype(float))
             choice_rewards.append(cr.astype(float))
+            choices[episode.choice] += 1
 
         self.decider.train(states, rewards)
         self.intuition.train(states, choice_rewards)
@@ -137,6 +145,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         if self.games == self.dqls:
             self.games = 0
             self.decider, self.evaluator = self.evaluator, self.decider
+        return choices
 
     def clean(self):
         self.episodes[:] = []
