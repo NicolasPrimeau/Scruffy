@@ -30,7 +30,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.choices = deque()
         self.game = game
         self.lookahead_prob = lookahead_prob
-        self.choice_options = [0, 1]
+        self.choice_options = (0, 1)
         self.decider = TensorFlowPerceptron(self.name + "-network1",
                                             self.features, self.actions, learning_rate=self.alpha)
         self.evaluator = TensorFlowPerceptron(self.name + "-network2",
@@ -56,7 +56,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
     def get_action(self, s):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
         if len(self.action_queue) == 0:
-            actions, choice = self.get_actions(s)
+            actions, choice = self._get_actions(s)
             self.choices.extend([choice] * len(actions))
             self.action_queue.extend(actions)
         action = self.action_queue.popleft()
@@ -68,18 +68,26 @@ class AutoLookAheadTensorFlowAgent(Agent):
     def _get_ga_actions(self):
         return self.thinker.find_best(game=Game(game_board=self.game.copy_gameboard(), spawning=False))
 
-    def get_actions(self, state):
+    def _get_actions(self, state):
         if random.uniform(0, 1) > self.exploration:
             actions = self.intuition.get_action(state)
             max_val = max(actions)
-            action = random.choice(np.where(actions == max_val)[0])
+            choice = random.choice(np.where(actions == max_val)[0])
         else:
-            action = random.choice(self.choice_options)
-            
-        if action == 0 or (len(self.episodes) > 0 > self.episodes[-1].reward and self.episodes[-1].choice == 1):
-            return self._get_e_greedy_action(state, self.exploration), action
+            choice = random.choice(self.choice_options)
+
+        if choice == 0 or (len(self.episodes) > 0 > self.episodes[-1].reward and self.episodes[-1].choice == 1):
+            action = self._get_e_greedy_action(state, exploration=self.exploration)
+        elif choice == 1:
+            action = self._get_ga_actions()
         else:
-            return self._get_ga_actions(), action
+            raise ValueError("No")
+
+        if action is None:
+            action = self._get_e_greedy_action(state, exploration=0.5)
+            choice = 0
+
+        return action, choice
 
     def _get_e_greedy_action(self, state, exploration=None):
         actions = self.get_action_values(state)

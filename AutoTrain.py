@@ -19,7 +19,7 @@ GAMES = 0
 REWARD = 0
 
 # Up right down Left
-ACTIONS = [0, 1, 2, 3]
+ACTIONS = (0, 1, 2, 3)
 GRID_SIZE = 4
 ALPHA = 0.1
 GAMMA = 0.9
@@ -80,7 +80,6 @@ def step(game, agent):
         agent.give_reward(-2048)
         WRONG_MOVES += 1
         action = agent.get_action(CUR_STATE)
-
     merged_val = game.do_action(action)
 
     if game.game_over():

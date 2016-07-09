@@ -49,15 +49,22 @@ class LookAheadTensorFlowAgent(Agent):
     def get_action(self, s):
         s = np.array(map_state_to_inputs(s)).astype(np.float)
         if len(self.action_queue) == 0:
-            if random.uniform(0, 1) < self.lookahead_prob:
-                self.action_queue.extend(self._get_ga_actions())
-            else:
-                actions = self.get_action_values(s)
-                self.action_queue.extend(self._get_e_greedy_action(actions, self.exploration))
+            self.action_queue.extend(s)
         action = self.action_queue.popleft()
         e = Episode(s, action, 0)
         self.episodes.append(e)
         return action
+
+    def get_actions(self, state):
+        if random.uniform(0, 1) < self.lookahead_prob:
+            actions = self._get_ga_actions()
+        else:
+            action_values = self.get_action_values(state)
+            actions = self._get_e_greedy_action(action_values, self.exploration)
+        if actions is None:
+            actions_values = self.get_action_values(state)
+            actions = self._get_e_greedy_action(actions_values, 0.5)
+        return actions
 
     def _get_ga_actions(self):
         return self.thinker.find_best(game=Game(game_board=self.game.copy_gameboard(), spawning=False))

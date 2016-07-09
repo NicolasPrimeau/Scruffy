@@ -10,7 +10,7 @@ from Game import Game
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=5, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=20,
+    def __init__(self, actions, lookahead=5, mutation_prob=0.25, crossover_prob=0.5, n_steps=30, pop_size=40,
                  discounted=0.9):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -40,7 +40,10 @@ class LookAhead:
     def find_best(self, game):
         self.game_player = game
         pop, log, hof = self.find_solution()
-        return hof[0]
+        if int(hof[0].fitness.values[0]) != -2048:
+            return hof[0]
+        else:
+            return None
 
     def mutate_action(self, individual, indpb):
         for i in range(len(individual)):
