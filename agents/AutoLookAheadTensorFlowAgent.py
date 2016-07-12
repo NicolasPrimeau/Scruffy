@@ -16,8 +16,8 @@ from rl.Episode import Episode
 
 class AutoLookAheadTensorFlowAgent(Agent):
 
-    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3,
-                 double_q_learning_steps=50, lookahead_prob=0.2, **kwargs):
+    def __init__(self, actions, features, exploration=0.1, alpha=0.1, gamma=0.9, experience_replays=3,
+                 double_q_learning_steps=50, lookahead_prob=0.1, **kwargs):
         super().__init__(actions, name="AutoLookAheadTensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
@@ -32,12 +32,16 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.choice_queue = deque()
         self.lookahead_prob = lookahead_prob
         self.choice_options = (0, 1)
+
         self.decider = TensorFlowPerceptron(self.name + "-network1",
                                             self.features, self.actions, learning_rate=self.alpha)
+
         self.evaluator = TensorFlowPerceptron(self.name + "-network2",
                                               self.features, self.actions, learning_rate=self.alpha)
+
         self.intuition = TensorFlowPerceptron(self.name + "-intuition",
                                               self.features, self.choice_options, learning_rate=self.alpha)
+
         self.thinker = LookAhead(actions=actions)
         self.load()
 
@@ -102,6 +106,9 @@ class AutoLookAheadTensorFlowAgent(Agent):
             return [random.choice(self.actions)]
 
     def give_reward(self, reward):
+        if reward < 0:
+            self.action_queue.clear()
+            self.choice_queue.clear()
         self.episodes[-1].reward = reward
 
     def _experience_replay(self):

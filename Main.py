@@ -2,13 +2,33 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import Analytics
+from Game import Game
 from agents.Agent import map_state_to_inputs
 from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent, translate_state_to_game_board
 
 app = Flask(__name__)
 
 # Up right down Left
-ACTIONS = [0, 1, 2, 3]
+# Internal -> out
+# 2 -> 1
+# 3 -> 0
+# 0 -> 3
+# 1 -> 2
+MAPPING = {
+    2: 1,
+    3: 0,
+    0: 3,
+    1: 2
+}
+
+ACTION_TRANSLATIONS = {
+    0: "Up",
+    1: "Right",
+    2: "Down",
+    3: "Left"
+}
+
+ACTIONS = (0, 1, 2, 3)
 GRID_SIZE = 4
 ALPHA = 0.1
 GAMMA = 0.9
@@ -84,14 +104,32 @@ def setup():
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
-    global AGENT
-    state = request.json["state"]
+    global AGENT, MAPPING
+    state = map_state_game_state(request.json["state"])
     illegals = request.json["illegals"]
     action = AGENT.get_action(state)
-    illegals = [int(i) for i in illegals]
-    action = AGENT.get_action(translate_state_to_game_board(map_state_to_inputs(state)))
-    return json.dumps({"action": str(action)}), 200
+    return json.dumps({"action": str(MAPPING[action])}), 200
 
+
+def map_state_game_state(state):
+    mapped = dict()
+    mapped["0_0"] = state["3_0"] # ok
+    mapped["0_1"] = state["2_0"]
+    mapped["0_2"] = state["1_0"]
+    mapped["0_3"] = state["0_0"]
+    mapped["1_0"] = state["3_1"] # ok
+    mapped["1_1"] = state["2_1"]
+    mapped["1_2"] = state["1_1"]
+    mapped["1_3"] = state["0_1"]
+    mapped["2_0"] = state["3_2"] # ok
+    mapped["2_1"] = state["2_2"]
+    mapped["2_2"] = state["1_2"]
+    mapped["2_3"] = state["0_2"]
+    mapped["3_0"] = state["3_3"] # ok
+    mapped["3_1"] = state["2_3"]
+    mapped["3_2"] = state["1_3"]
+    mapped["3_3"] = state["0_3"]
+    return mapped
 
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():

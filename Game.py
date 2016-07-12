@@ -14,7 +14,7 @@ class Game:
         if game_board is None:
             self.game_board = [[None for i in range(GAME_BOARD_LENGTH)] for j in range(GAME_BOARD_LENGTH)]
         else:
-            self.game_board = game_board
+            self.game_board = copy_gameboard(game_board)
         self.spawning = spawning
 
     def do_action(self, direction):
@@ -199,7 +199,7 @@ class Game:
         self.spawn_cell()
 
     def get_gameboard(self):
-        return self.game_board
+        return tuple([tuple(row) for row in self.game_board])
 
     def copy_gameboard(self):
         return [copy.deepcopy(self.game_board[i]) for i in range(len(self.game_board))]
@@ -222,3 +222,7 @@ class Game:
                 state[name] = gameboard[i][j] if gameboard[i][j] is not None else 0
                 score += state[name]
         return state, score
+
+
+def copy_gameboard(board):
+    return [copy.deepcopy(board[i]) for i in range(len(board))]
