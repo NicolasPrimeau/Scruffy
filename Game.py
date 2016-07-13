@@ -16,6 +16,7 @@ class Game:
         else:
             self.game_board = copy_gameboard(game_board)
         self.spawning = spawning
+        random.seed()
 
     def do_action(self, direction):
         direction = int(direction)
@@ -178,7 +179,7 @@ class Game:
 
     def spawn_cell(self):
         val = 2
-        if random.uniform(0, 1) > 0.9:
+        if random.uniform(0, 1) > PROB_2:
             val = 4
         empties = self.get_empties()
         if len(empties) == 0:
@@ -195,6 +196,7 @@ class Game:
         return empty
 
     def restart(self):
+        random.seed()
         self.game_board = [[None for i in range(GAME_BOARD_LENGTH)] for j in range(GAME_BOARD_LENGTH)]
         self.spawn_cell()
 

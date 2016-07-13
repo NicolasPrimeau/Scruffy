@@ -71,7 +71,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         return action
 
     def _get_ga_actions(self, state):
-        return self.thinker.find_best(board=translate_state_to_game_board(state))
+        return self.thinker.find_best(board=translate_state_to_game_board(state), value_function=self.get_action_values)
 
     def _get_actions(self, state):
         if random.uniform(0, 1) > self.exploration:
@@ -180,13 +180,15 @@ class TensorFlowPerceptron:
             saver = tf.train.Saver()
             try:
                 saver.restore(self.session, "agents/models/" + self.name + ".cpkt")
+                print(self.name + " Loaded Successfully")
             except ValueError:
+                print(self.name + " No Model Found, Initializing Variables Randomly")
                 self.session.run(tf.initialize_all_variables())
 
     def save(self):
         with self.session.as_default(), self.graph.as_default():
             saver = tf.train.Saver()
-            saver.save(self.session, "agents/models/model" + self.name + ".cpkt")
+            saver.save(self.session, "agents/models/" + self.name + ".cpkt")
 
     def get_action(self, state):
         with self.session.as_default(), self.graph.as_default():

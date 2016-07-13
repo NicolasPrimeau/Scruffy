@@ -6,6 +6,7 @@ from deap import creator
 from deap import tools
 
 from Game import Game
+from agents.Agent import map_state_to_inputs
 
 
 class LookAhead:
@@ -18,9 +19,10 @@ class LookAhead:
         self.ngen = n_steps
         self.actions = actions
         self.game_player = None
+        self.value_function = None
         self.discounted = discounted
 
-        creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+        creator.create("FitnessMax", base.Fitness, weights=(1.0, 1.0))
         creator.create("Individual", array.array, typecode='i', fitness=creator.FitnessMax)
 
         self.toolbox = base.Toolbox()
@@ -37,7 +39,8 @@ class LookAhead:
         self.toolbox.register("mutate", self.mutate_action, indpb=mutation_prob)
         self.toolbox.register("select", tools.selTournament, tournsize=3)
 
-    def find_best(self, board):
+    def find_best(self, board, value_function):
+        self.value_function = value_function
         self.game_player = Game(game_board=board, spawning=False)
         pop, log, hof = self.find_solution()
         if int(hof[0].fitness.values[0]) != -2048:
@@ -55,14 +58,18 @@ class LookAhead:
         game = Game(game_board=self.game_player.copy_gameboard(), spawning=False)
         reward = 0
         cnt = 0
+        memory_reward = 0
         for action in individual:
+            #action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
+            #memory_reward += action_values[action]
             if action in game.get_illegal_actions():
-                return -2048,
+                return -2048, memory_reward
             this_reward = game.do_action(action) * (self.discounted ** cnt)
             if this_reward < 0:
-                return -2048,
+                return -2048, memory_reward
             reward += this_reward
-        return reward,
+
+        return reward, memory_reward
 
     def find_solution(self):
         random.seed(64)

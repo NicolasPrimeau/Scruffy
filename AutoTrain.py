@@ -26,7 +26,7 @@ Exploration = 0.05
 WRONG_MOVES = 0
 
 main_agent_type = AutoLookAheadTensorFlowAgent
-SAVE_STEP = 100
+SAVE_STEP = 5
 LIMITER = None
 
 
@@ -68,13 +68,15 @@ def restart(game, agent):
         print("Saving Agent State")
         agent.save()
 
+ACTION_Q = None
+
 
 def step(game, agent):
-    global CUR_STATE, GLOBAL_MAX_VALUE, SCORE, MAX_SCORE, REWARD, WRONG_MOVES
-
+    global CUR_STATE, GLOBAL_MAX_VALUE, SCORE, MAX_SCORE, REWARD, WRONG_MOVES, ACTION_Q
     if CUR_STATE is None:
         GLOBAL_MAX_VALUE = 0
         CUR_STATE, SCORE = game.get_state()
+        ACTION_Q = list()
 
     illegals = game.get_illegal_actions()
     action = agent.get_action(CUR_STATE)
@@ -83,10 +85,13 @@ def step(game, agent):
         agent.give_reward(-2048)
         WRONG_MOVES += 1
         action = agent.get_action(CUR_STATE)
+
+    ACTION_Q.append(action)
     merged_val = game.do_action(action)
 
     if game.game_over():
         print("Game Over")
+        print(", ".join([str(x) for x in ACTION_Q]))
         agent.give_reward(-GLOBAL_MAX_VALUE)
         restart(game, agent)
     else:
