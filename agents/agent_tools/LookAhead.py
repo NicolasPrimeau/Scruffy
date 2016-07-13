@@ -60,8 +60,8 @@ class LookAhead:
         cnt = 0
         memory_reward = 0
         for action in individual:
-            #action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
-            #memory_reward += action_values[action]
+            action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
+            memory_reward += action_values[action]
             if action in game.get_illegal_actions():
                 return -2048, memory_reward
             this_reward = game.do_action(action) * (self.discounted ** cnt)
