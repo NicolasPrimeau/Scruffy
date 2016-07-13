@@ -131,6 +131,7 @@ def map_state_game_state(state):
     mapped["3_3"] = state["0_3"]
     return mapped
 
+
 @app.route("/api/reward_update", methods=['POST'])
 def update_reward_handler():
     global AGENT

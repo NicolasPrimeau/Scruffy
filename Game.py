@@ -16,11 +16,12 @@ class Game:
         else:
             self.game_board = copy_gameboard(game_board)
         self.spawning = spawning
+        self.illegal = []
         random.seed()
 
     def do_action(self, direction):
         direction = int(direction)
-        if direction not in DIRECTIONS:
+        if direction not in DIRECTIONS or direction in self.get_illegal_actions():
             return 0
 
         merged = [[False for j in range(GAME_BOARD_LENGTH)] for i in range(GAME_BOARD_LENGTH)]
@@ -95,8 +96,17 @@ class Game:
 
         if self.spawning:
             self.spawn_cell()
+        self.illegal = [x for x in DIRECTIONS if x not in self.get_legal_actions()]
+        return self.get_summed_merges(merged)
 
-        return self.get_highest_merged(merged)
+    def get_summed_merges(self, merged):
+        summed = 0
+        for i in range(len(merged)):
+            for j in range(len(merged[i])):
+                if merged[i][j]:
+                    value = self.game_board[i][j]
+                    summed += value
+        return summed
 
     def get_highest_merged(self, merged):
         highest = 0
@@ -120,8 +130,7 @@ class Game:
         return retlist
 
     def get_illegal_actions(self):
-        legal = self.get_legal_actions()
-        return [x for x in DIRECTIONS if x not in legal]
+        return self.illegal
 
     def game_over(self):
         return not(self.can_up() or self.can_down() or self.can_left() or self.can_right())

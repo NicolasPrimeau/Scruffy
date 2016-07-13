@@ -17,7 +17,7 @@ from rl.Episode import Episode
 class AutoLookAheadTensorFlowAgent(Agent):
 
     def __init__(self, actions, features, exploration=0.1, alpha=0.1, gamma=0.9, experience_replays=3,
-                 double_q_learning_steps=50, lookahead_prob=0.1, **kwargs):
+                 double_q_learning_steps=50, **kwargs):
         super().__init__(actions, name="AutoLookAheadTensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
@@ -30,7 +30,6 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.games = 0
         self.action_queue = deque()
         self.choice_queue = deque()
-        self.lookahead_prob = lookahead_prob
         self.choice_options = (0, 1)
 
         self.decider = TensorFlowPerceptron(self.name + "-network1",
@@ -118,6 +117,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
     def learn(self):
         self._experience_replay()
         self.previous.append(list(self.episodes))
+        print(len(self.previous))
         return self.learn_episodes(self.episodes)
 
     def learn_episodes(self, episodes):
@@ -133,7 +133,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
             episode = episodes.pop(0)
             states.append(episode.state)
             ar = np.zeros(len(self.actions))
-            cr = np.zeros(2)
+            cr = np.zeros(len(self.choice_options))
 
             reward = episode.reward
             if len(episodes) != 0:
@@ -166,6 +166,7 @@ class TensorFlowPerceptron:
         self.name = name
         self.graph = tf.Graph()
         self.session = tf.Session(graph=self.graph)
+        self.loaded = False
 
         with self.session.as_default(), self.graph.as_default():
             hidden_weights = tf.Variable(tf.constant(0., shape=[features, len(actions)]))
@@ -184,11 +185,13 @@ class TensorFlowPerceptron:
             except ValueError:
                 print(self.name + " No Model Found, Initializing Variables Randomly")
                 self.session.run(tf.initialize_all_variables())
+            self.loaded = True
 
     def save(self):
-        with self.session.as_default(), self.graph.as_default():
-            saver = tf.train.Saver()
-            saver.save(self.session, "agents/models/" + self.name + ".cpkt")
+        if self.loaded:
+            with self.session.as_default(), self.graph.as_default():
+                saver = tf.train.Saver()
+                saver.save(self.session, "agents/models/" + self.name + ".cpkt")
 
     def get_action(self, state):
         with self.session.as_default(), self.graph.as_default():

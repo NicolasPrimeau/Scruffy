@@ -3,6 +3,7 @@ from Game import Game
 import datetime
 import sys
 import os
+import signal
 
 import warnings
 
@@ -26,6 +27,7 @@ Exploration = 0.05
 WRONG_MOVES = 0
 
 main_agent_type = AutoLookAheadTensorFlowAgent
+AGENT = None
 SAVE_STEP = 100
 LIMITER = None
 
@@ -33,10 +35,11 @@ LIMITER = None
 def main(agent_type, no_print=False):
     if no_print:
         sys.stdout = open(os.devnull, 'w')
-    global MAX_SCORE, LIMITER, GRID_SIZE
+    global MAX_SCORE, LIMITER, GRID_SIZE, AGENT
     game = Game()
     agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2,
                        elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5)
+    AGENT = agent
     game.restart()
     MAX_SCORE = Database.get_high_score(agent.name)
     print(str(datetime.datetime.now()) + " Starting up")
@@ -93,10 +96,19 @@ def step(game, agent):
         CUR_STATE, SCORE = game.get_state()
         agent.give_reward(merged_val)
         REWARD += merged_val
-        if GLOBAL_MAX_VALUE < merged_val:
-            GLOBAL_MAX_VALUE = merged_val
+        max_val = max(CUR_STATE, key=(lambda key: CUR_STATE[key]))
+        if GLOBAL_MAX_VALUE < CUR_STATE[max_val]:
+            GLOBAL_MAX_VALUE = CUR_STATE[max_val]
         if SCORE > MAX_SCORE:
             MAX_SCORE = SCORE
 
+
+def exit_handler(sig, frame):
+    global AGENT
+    print("Sig int received, saving agent")
+    AGENT.save()
+    sys.exit(0)
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGINT, exit_handler)
     main(main_agent_type)

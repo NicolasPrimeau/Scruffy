@@ -11,7 +11,7 @@ from agents.Agent import map_state_to_inputs
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=4, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=50,
+    def __init__(self, actions, lookahead=4, mutation_prob=0.5, crossover_prob=0.5, n_steps=30, pop_size=20,
                  discounted=0.70):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -27,7 +27,7 @@ class LookAhead:
 
         self.toolbox = base.Toolbox()
 
-        # Attribute generator
+        # Randomly generate chromosome
         self.toolbox.register("attr_int", random.randint, 0, len(actions)-1)
 
         # Structure initializers
@@ -51,7 +51,8 @@ class LookAhead:
     def mutate_action(self, individual, indpb):
         for i in range(len(individual)):
             if random.random() < indpb:
-                individual[i] = type(individual[i])(random.choice(self.actions))
+                others = tuple(x for x in self.actions if x is not individual[i])
+                individual[i] = type(individual[i])(random.choice(others))
         return individual,
 
     def reward(self, individual):
@@ -60,20 +61,20 @@ class LookAhead:
         cnt = 0
         memory_reward = 0
         for action in individual:
-            action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
-            memory_reward += action_values[action]
             if action in game.get_illegal_actions():
                 return -2048, memory_reward
+            action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
             reward = game.do_action(action)
-            this_reward = reward * (self.discounted ** cnt)
             if game.game_over():
                 return -2048, -2048
+            this_reward = reward * (self.discounted ** cnt)
             reward += this_reward
+            memory_reward += action_values[action]
 
         return reward, memory_reward
 
     def find_solution(self):
-        random.seed(64)
+        random.seed()
         pop = self.toolbox.population(n=self.pop_size)
         hof = tools.HallOfFame(1)
         stats = tools.Statistics(lambda ind: ind.fitness.values)
