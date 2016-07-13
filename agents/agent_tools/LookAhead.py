@@ -11,7 +11,7 @@ from agents.Agent import map_state_to_inputs
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=4, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=40,
+    def __init__(self, actions, lookahead=4, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=50,
                  discounted=0.70):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -64,9 +64,10 @@ class LookAhead:
             memory_reward += action_values[action]
             if action in game.get_illegal_actions():
                 return -2048, memory_reward
-            this_reward = game.do_action(action) * (self.discounted ** cnt)
-            if this_reward < 0:
-                return -2048, memory_reward
+            reward = game.do_action(action)
+            this_reward = reward * (self.discounted ** cnt)
+            if game.game_over():
+                return -2048, -2048
             reward += this_reward
 
         return reward, memory_reward
