@@ -8,6 +8,7 @@ import signal
 import warnings
 
 from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
+from agents.TensorFlowAgent import TensorFlowAgent
 
 warnings.filterwarnings("ignore")
 
@@ -26,7 +27,7 @@ GAMMA = 0.9
 Exploration = 0.05
 WRONG_MOVES = 0
 
-main_agent_type = AutoLookAheadTensorFlowAgent
+main_agent_type = TensorFlowAgent
 AGENT = None
 SAVE_STEP = 100
 LIMITER = None

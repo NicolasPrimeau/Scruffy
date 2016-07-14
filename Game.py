@@ -13,10 +13,11 @@ class Game:
     def __init__(self, game_board=None, spawning=True):
         if game_board is None:
             self.game_board = [[None for i in range(GAME_BOARD_LENGTH)] for j in range(GAME_BOARD_LENGTH)]
+            self.illegal = []
         else:
             self.game_board = copy_gameboard(game_board)
+            self.illegal = [x for x in DIRECTIONS if x not in self.get_legal_actions()]
         self.spawning = spawning
-        self.illegal = []
         random.seed()
 
     def do_action(self, direction):
@@ -208,6 +209,7 @@ class Game:
         random.seed()
         self.game_board = [[None for i in range(GAME_BOARD_LENGTH)] for j in range(GAME_BOARD_LENGTH)]
         self.spawn_cell()
+        self.illegal = []
 
     def get_gameboard(self):
         return tuple([tuple(row) for row in self.game_board])

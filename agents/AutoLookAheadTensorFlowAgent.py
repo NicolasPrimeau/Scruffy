@@ -5,7 +5,7 @@ from collections import OrderedDict
 from Game import Game
 from agents.Agent import Agent, map_state_to_inputs
 import numpy as np
-import tensorflow as tf
+from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
 
 import copy
 from agents.agent_tools.LookAhead import LookAhead
@@ -70,7 +70,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         return action
 
     def _get_ga_actions(self, state):
-        return self.thinker.find_best(board=translate_state_to_game_board(state), value_function=self.get_action_values)
+        return self.thinker.find_best(translate_state_to_game_board(state), self.decider.get_action)
 
     def _get_actions(self, state):
         if random.uniform(0, 1) > self.exploration:
@@ -79,7 +79,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
             choice = random.choice(np.where(actions == max_val)[0])
         else:
             choice = random.choice(self.choice_options)
-
+                
         if choice == 0:
             action = self._get_e_greedy_action(state, exploration=self.exploration)
         elif choice == 1:
@@ -117,7 +117,6 @@ class AutoLookAheadTensorFlowAgent(Agent):
     def learn(self):
         self._experience_replay()
         self.previous.append(list(self.episodes))
-        print(len(self.previous))
         return self.learn_episodes(self.episodes)
 
     def learn_episodes(self, episodes):
@@ -134,7 +133,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
             states.append(episode.state)
             ar = np.zeros(len(self.actions))
             cr = np.zeros(len(self.choice_options))
-
+            
             reward = episode.reward
             if len(episodes) != 0:
                 next_episode = episodes[0]
@@ -160,52 +159,8 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.previous.clear()
 
 
-class TensorFlowPerceptron:
-
-    def __init__(self, name, features, actions, learning_rate=0.1):
-        self.name = name
-        self.graph = tf.Graph()
-        self.session = tf.Session(graph=self.graph)
-        self.loaded = False
-
-        with self.session.as_default(), self.graph.as_default():
-            hidden_weights = tf.Variable(tf.constant(0., shape=[features, len(actions)]))
-            self.state_ph = tf.placeholder("float", [None, features])
-            self.output = tf.matmul(self.state_ph, hidden_weights)
-            self.actions_ph = tf.placeholder("float", [None, len(actions)])
-            loss = tf.reduce_mean(tf.square(self.output - actions))
-            self.train_operation = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
-
-    def load(self):
-        with self.session.as_default(), self.graph.as_default():
-            saver = tf.train.Saver()
-            try:
-                saver.restore(self.session, "agents/models/" + self.name + ".cpkt")
-                print(self.name + " Loaded Successfully")
-            except ValueError:
-                print(self.name + " No Model Found, Initializing Variables Randomly")
-                self.session.run(tf.initialize_all_variables())
-            self.loaded = True
-
-    def save(self):
-        if self.loaded:
-            with self.session.as_default(), self.graph.as_default():
-                saver = tf.train.Saver()
-                saver.save(self.session, "agents/models/" + self.name + ".cpkt")
-
-    def get_action(self, state):
-        with self.session.as_default(), self.graph.as_default():
-            return self.session.run(self.output, feed_dict={self.state_ph: [state]})[0]
-
-    def train(self, states, rewards):
-        with self.session.as_default(), self.graph.as_default():
-            self.session.run(self.train_operation, feed_dict={
-                self.state_ph: states,
-                self.actions_ph: rewards})
-
-
 def translate_state_to_game_board(state):
-    return [[int(item) if int(item) != 0 else None for item in row] for row in list(chunks(state, 4))]
+    return [[2**int(item*15) if int(item*15) != 0 else None for item in row] for row in list(chunks(state, 4))]
 
 
 def chunks(l, n):

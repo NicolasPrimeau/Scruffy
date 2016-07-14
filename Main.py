@@ -5,6 +5,7 @@ import Analytics
 from Game import Game
 from agents.Agent import map_state_to_inputs
 from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent, translate_state_to_game_board
+from agents.TensorFlowAgent import TensorFlowAgent
 
 app = Flask(__name__)
 

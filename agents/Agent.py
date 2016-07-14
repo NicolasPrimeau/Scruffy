@@ -1,6 +1,10 @@
 import random
 
+import math
 from pymongo import MongoClient
+
+MAX_VAL = 2**15
+LEVELS = math.log(MAX_VAL, 2)
 
 
 class Agent:
@@ -78,11 +82,13 @@ class GraphNode(TreeNode):
 
 
 def map_state_to_inputs(state):
+    global LEVELS
     state_mapping = list()
     for i in range(int(len(state)**0.5)):
         for j in range(int(len(state)**0.5)):
             key = str(i) + "_" + str(j)
-            state_mapping.append(state[key])
+            value = math.log(state[key], 2) / LEVELS if state[key] != 0 else 0
+            state_mapping.append(value)
     return state_mapping
 
 
