@@ -3,12 +3,13 @@ from collections import deque
 from collections import OrderedDict
 
 from Game import Game
-from agents.Agent import Agent, map_state_to_inputs
+from agents.Agent import Agent
 import numpy as np
 from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
 
 import copy
 from agents.agent_tools.LookAhead import LookAhead
+from agents.agent_tools.utils import map_state_to_inputs
 from rl.Episode import Episode
 
 # Double DQN with NN switched GA lookahead

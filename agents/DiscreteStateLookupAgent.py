@@ -1,6 +1,7 @@
 import random
 
-from agents.Agent import Agent, map_state_to_inputs
+from agents.Agent import Agent
+from agents.agent_tools.utils import map_state_to_inputs
 from rl.Episode import Episode
 
 

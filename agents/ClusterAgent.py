@@ -1,7 +1,6 @@
 
-import random
-
-from agents.Agent import Agent, get_e_greedy_action, map_state_to_inputs
+from agents.Agent import Agent
+from agents.agent_tools.utils import get_e_greedy_action, map_state_to_inputs, Cluster
 from rl.Episode import Episode
 
 
@@ -88,35 +87,3 @@ class ClusterAgent(Agent):
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.client is not None:
             self.client.close()
-
-
-class Cluster:
-    def __init__(self, actions, cid, num_features, init_state=None):
-        self.updated = 0
-        self.state = [0 for i in range(num_features)]
-        if init_state is not None:
-            self.updated += 1
-            self.update(init_state)
-            self.updated -= 1
-        self.id = cid
-        self.action_values = dict()
-        for i in actions:
-            self.action_values[i] = random.gauss(0, 1)
-
-    def get_distance(self, state):
-        distance = 0
-        for i in range(len(self.state)):
-            distance += abs(self.state[i] - state[i])
-        return distance
-
-    def update(self, state):
-        self.updated += 1
-        for i in range(len(self.state)):
-            self.state[i] += (state[i] - self.state[i]) / float(self.updated)
-
-    def remove(self, state):
-        if self.updated == 0:
-            return
-        for i in range(len(self.state)):
-            self.state[i] += (state[i] - self.state[i]) / float(self.updated)
-        self.updated -= 1

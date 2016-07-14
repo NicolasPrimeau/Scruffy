@@ -1,6 +1,7 @@
 import random
 
-from agents.Agent import Agent, map_state_to_inputs, get_e_greedy_action, GraphNode
+from agents.Agent import Agent
+from agents.agent_tools.utils import GraphNode, get_e_greedy_action, map_state_to_inputs
 from rl.Episode import Episode
 
 

@@ -2,10 +2,7 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import Analytics
-from Game import Game
-from agents.Agent import map_state_to_inputs
-from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent, translate_state_to_game_board
-from agents.TensorFlowAgent import TensorFlowAgent
+from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
 
 app = Flask(__name__)
 

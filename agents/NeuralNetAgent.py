@@ -1,12 +1,12 @@
 import pickle
 from bson import Binary
-from pybrain import SigmoidLayer, LinearLayer
 from pybrain.rl.agents import LearningAgent
 
 from pybrain.rl.learners import ActionValueNetwork, NFQ
 from pybrain.tools.shortcuts import buildNetwork
 
-from agents.Agent import Agent, map_state_to_inputs
+from agents.Agent import Agent
+from agents.agent_tools.utils import map_state_to_inputs
 
 
 class NeuralNetAgent(Agent):

@@ -27,7 +27,7 @@ GAMMA = 0.9
 Exploration = 0.05
 WRONG_MOVES = 0
 
-main_agent_type = TensorFlowAgent
+main_agent_type = AutoLookAheadTensorFlowAgent
 AGENT = None
 SAVE_STEP = 100
 LIMITER = None
