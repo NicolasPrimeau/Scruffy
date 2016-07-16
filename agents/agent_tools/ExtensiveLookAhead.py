@@ -7,7 +7,7 @@ from agents.agent_tools.utils import map_state_to_inputs
 
 class ExtensiveLookAhead:
 
-    def __init__(self, actions, lookahead=4, discounted=0.70):
+    def __init__(self, actions, lookahead=3, discounted=0.70):
         self.actions = actions
         self.env = None
         self.value_function = None

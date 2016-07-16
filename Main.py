@@ -2,21 +2,22 @@ from flask import Flask, request, Response, render_template
 import json
 import random
 import Analytics
+
 from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
 
 app = Flask(__name__)
 
 # Up right down Left
 # Internal -> out
-# 2 -> 1
-# 3 -> 0
+# Down ->
+# Right -> (Down or left)?
 # 0 -> 3
 # 1 -> 2
 MAPPING = {
-    2: 1,
-    3: 0,
-    0: 3,
-    1: 2
+    0: 0,  # Up means Right
+    1: 3,  # right means down
+    2: 2,  # down means right
+    3: 1   # left means right
 }
 
 ACTION_TRANSLATIONS = {
@@ -98,7 +99,6 @@ def setup():
                            exploration=Exploration, elligibility_trace=True)
         setting_up = False
     random.seed()
-
 
 @app.route("/api/get_action", methods=['POST'])
 def get_next_action_handler():
