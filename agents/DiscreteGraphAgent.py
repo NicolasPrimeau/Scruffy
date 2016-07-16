@@ -1,8 +1,8 @@
 import random
 
 from agents.Agent import Agent
+from agents.agent_tools.Episode import Episode
 from agents.agent_tools.utils import GraphNode, get_e_greedy_action, map_state_to_inputs
-from rl.Episode import Episode
 
 
 class DiscreteGraphAgent(Agent):

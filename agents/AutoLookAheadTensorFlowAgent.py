@@ -1,16 +1,18 @@
+import copy
 import random
-from collections import deque
 from collections import OrderedDict
+from collections import deque
+
+import numpy as np
 
 from Game import Game
 from agents.Agent import Agent
-import numpy as np
-from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
-
-import copy
+from agents.agent_tools.Episode import Episode
+from agents.agent_tools.ExtensiveLookAhead import ExtensiveLookAhead
 from agents.agent_tools.LookAhead import LookAhead
+from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
 from agents.agent_tools.utils import map_state_to_inputs
-from rl.Episode import Episode
+
 
 # Double DQN with NN switched GA lookahead
 
@@ -42,7 +44,7 @@ class AutoLookAheadTensorFlowAgent(Agent):
         self.intuition = TensorFlowPerceptron(self.name + "-intuition",
                                               self.features, self.choice_options, learning_rate=self.alpha)
 
-        self.thinker = LookAhead(actions=actions)
+        self.thinker = ExtensiveLookAhead(actions=actions)
         self.load()
 
     def load(self):

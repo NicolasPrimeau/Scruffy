@@ -8,12 +8,12 @@ from deap import base
 from deap import creator
 from deap import tools
 from Game import Game
-from agents.Agent import map_state_to_inputs
+from agents.agent_tools.utils import map_state_to_inputs
 
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=4, mutation_prob=0.5, crossover_prob=0.5, n_steps=50, pop_size=30,
+    def __init__(self, actions, lookahead=4, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=50,
                  discounted=0.70):
         self.mxprob = mutation_prob
         self.pop_size = pop_size
@@ -70,7 +70,7 @@ class LookAhead:
             if game.game_over():
                 return -2048, -2048
             intuitive_reward += predicted_reward
-            memory_reward += action_values[action]
+            memory_reward += action_values[action] * (self.discounted ** cnt)
             cnt += 1
 
         return intuitive_reward, memory_reward
