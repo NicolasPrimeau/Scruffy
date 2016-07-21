@@ -1,5 +1,9 @@
 $(function () {
 
+    setTimeout(function(){
+       window.location.reload(1);
+    }, 30*1000);
+
     $.get("/analytics/get_stats", function( data ) {
         stats = JSON.parse(data);
         $("p#game_cnt_val").html(stats["count"]);

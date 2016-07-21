@@ -1,3 +1,4 @@
+import copy
 import random
 import math
 
@@ -83,6 +84,17 @@ class GraphNode(TreeNode):
                 if key in self.children:
                     next_nodes.append(self.children[key])
         return next_nodes
+
+
+def translate_state_to_game_board(state):
+    global LEVELS
+    return [[2**int(item*LEVELS) if int(item*LEVELS) != 0 else None for item in row] for row in list(chunks(state, 4))]
+
+
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield copy.deepcopy(l[i:i+n])
 
 
 def map_state_to_inputs(state):

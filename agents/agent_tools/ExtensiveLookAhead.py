@@ -26,8 +26,8 @@ class ExtensiveLookAhead:
                 max_combo = combo
                 max_reward = reward
 
-        if max_reward is not None and max_reward > 0:
-            return max_combo
+        if max_reward is not None and max_reward >= 0:
+            return [max_combo[0]]
         else:
             return None
 
@@ -38,12 +38,12 @@ class ExtensiveLookAhead:
         memory_reward = 0
         for action in individual:
             if action in game.get_illegal_actions():
-                return -2048, memory_reward
+                return -50000, memory_reward
             action_values = self.value_function(map_state_to_inputs(game.get_state()[0]))
-            predicted_reward = game.do_action(action) * (self.discounted ** cnt)
+            predicted_reward = game.do_action(action)
             if game.game_over():
-                return -2048, -2048
-            intuitive_reward += predicted_reward
+                return -50000, -50000
+            intuitive_reward += predicted_reward * (self.discounted ** cnt)
             memory_reward += action_values[action] * (self.discounted ** cnt)
             cnt += 1
 

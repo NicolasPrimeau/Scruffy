@@ -13,7 +13,7 @@ from agents.agent_tools.utils import map_state_to_inputs
 
 class LookAhead:
 
-    def __init__(self, actions, lookahead=4, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=50,
+    def __init__(self, actions, lookahead=3, mutation_prob=0.25, crossover_prob=0.5, n_steps=20, pop_size=50,
                  discounted=0.70):
         self.mxprob = mutation_prob
         self.pop_size = pop_size

@@ -3,7 +3,7 @@ import json
 import random
 import Analytics
 
-from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
+from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
 
 app = Flask(__name__)
 
@@ -33,7 +33,7 @@ ALPHA = 0.1
 GAMMA = 0.9
 Exploration = 0.05
 
-AGENT_TYPE = AutoLookAheadTensorFlowAgent
+AGENT_TYPE = LookAheadTensorFlowAgent
 AGENT = None
 game_id = 0
 

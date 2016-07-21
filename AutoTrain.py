@@ -7,8 +7,7 @@ import signal
 
 import warnings
 
-from agents.AutoLookAheadTensorFlowAgent import AutoLookAheadTensorFlowAgent
-from agents.TensorFlowAgent import TensorFlowAgent
+from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
 
 warnings.filterwarnings("ignore")
 
@@ -27,7 +26,7 @@ GAMMA = 0.9
 Exploration = 0.05
 WRONG_MOVES = 0
 
-main_agent_type = AutoLookAheadTensorFlowAgent
+main_agent_type = LookAheadTensorFlowAgent
 AGENT = None
 SAVE_STEP = 100
 LIMITER = None
@@ -55,11 +54,7 @@ def restart(game, agent):
     print(str(datetime.datetime.now()) + " Still Alive, Game: " + str(GAMES) + ", High Score: " + str(MAX_SCORE) +
           ", Max Value: " + str(GLOBAL_MAX_VALUE) + ", Score: " + str(SCORE) + ", Reward: " + str(REWARD) +
           ", Wrong Moves: " + str(WRONG_MOVES))
-    stats = agent.learn()
-    if stats is not None:
-        for key in stats:
-            print(str(key) + " : " + str(stats[key]))
-
+    agent.learn()
     Database.save_score(agent.name, SCORE)
     game.restart()
     CUR_STATE = None

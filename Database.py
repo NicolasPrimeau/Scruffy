@@ -32,3 +32,9 @@ def get_scores(agent_name, db_name=DB_NAME):
 def scores_count(agent_name, db_name=DB_NAME):
     with MongoClient() as client:
         return client[db_name][str(agent_name) + "_scores"].count()
+
+
+def save_error(agent_name, error, db_name=DB_NAME):
+    with MongoClient() as client:
+        client[db_name][str(agent_name) + "_errors"].insert_one(
+            {"error": error, "time": datetime.datetime.now().timestamp()})
