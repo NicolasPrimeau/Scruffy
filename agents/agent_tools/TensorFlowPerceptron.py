@@ -3,7 +3,7 @@ import tensorflow as tf
 
 class TensorFlowPerceptron:
 
-    def __init__(self, name, features, actions, learning_rate=0.1):
+    def __init__(self, name, features, actions, num_hidden_layers, learning_rate=0.1):
         self.name = name
         self.graph = tf.Graph()
         self.session = tf.Session(graph=self.graph)
@@ -12,10 +12,9 @@ class TensorFlowPerceptron:
         with self.session.as_default(), self.graph.as_default():
             self.state_ph = tf.placeholder("float", [None, features])
             self.actions_ph = tf.placeholder("float", [None, len(actions)])
-            w_h = self.init_weights([features, features])
-            w_h_2 = self.init_weights([features, features])
+            hidden = [self.init_weights([features, features]) for i in range(num_hidden_layers)]
             w_o = self.init_weights([features, len(actions)])
-            self.network = self.model(self.state_ph, (w_h, w_h_2), w_o)
+            self.network = self.model(self.state_ph, hidden, w_o)
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.network, self.actions_ph))
             self.train_operation = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
@@ -25,11 +24,10 @@ class TensorFlowPerceptron:
 
     @staticmethod
     def model(x, w_h, w_o):
-        h = tf.nn.tanh(tf.matmul(x, w_h[0]))
-        if len(w_h) > 1:
-            for hidden in w_h[1:]:
-                h = tf.nn.relu(tf.matmul(h, hidden))
-        return tf.matmul(h, w_o)
+        prev = x
+        for hidden in w_h[1:]:
+            prev = tf.nn.relu(tf.matmul(prev, hidden))
+        return tf.matmul(prev, w_o)
 
     def load(self):
         with self.session.as_default(), self.graph.as_default():
