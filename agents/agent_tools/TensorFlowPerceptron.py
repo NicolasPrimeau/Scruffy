@@ -13,9 +13,9 @@ class TensorFlowPerceptron:
             self.state_ph = tf.placeholder("float", [None, features])
             self.actions_ph = tf.placeholder("float", [None, len(actions)])
             w_h = self.init_weights([features, features])
-            # w_h_2 = self.init_weights([features, features])
+            w_h_2 = self.init_weights([features, features])
             w_o = self.init_weights([features, len(actions)])
-            self.network = self.model(self.state_ph, [w_h], w_o)
+            self.network = self.model(self.state_ph, (w_h, w_h_2), w_o)
             loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.network, self.actions_ph))
             self.train_operation = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
 
@@ -28,7 +28,7 @@ class TensorFlowPerceptron:
         h = tf.nn.tanh(tf.matmul(x, w_h[0]))
         if len(w_h) > 1:
             for hidden in w_h[1:]:
-                h = tf.nn.tanh(tf.matmul(h, hidden))
+                h = tf.nn.relu(tf.matmul(h, hidden))
         return tf.matmul(h, w_o)
 
     def load(self):
