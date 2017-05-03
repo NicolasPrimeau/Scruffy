@@ -12,7 +12,7 @@ from agents.agent_tools.TensorFlowPerceptron import LTSMNet
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
-# Double DQN with NN switched GA lookahead
+# Double DQN
 
 
 class NNAgent(Agent):
@@ -32,10 +32,7 @@ class NNAgent(Agent):
         self.action_queue = deque()
 
         self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
-
         self.evaluator = LTSMNet(self.name + "-network2", self.features, self.actions)
-
-        self.thinker = LookAhead(actions=actions)
         # self.load()
 
     def load(self):

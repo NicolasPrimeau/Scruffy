@@ -7,8 +7,7 @@ import signal
 
 import warnings
 
-from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
-from agents.NNAgent import NNAgent
+from agents.ImaginativeNNAgent import ImaginativeNNAgent
 
 warnings.filterwarnings("ignore")
 
@@ -27,7 +26,7 @@ GAMMA = 0.9
 Exploration = 0.05
 WRONG_MOVES = 0
 
-main_agent_type = NNAgent
+main_agent_type = ImaginativeNNAgent
 AGENT = None
 SAVE_STEP = 100
 LIMITER = None

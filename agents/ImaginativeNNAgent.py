@@ -11,10 +11,10 @@ from agents.agent_tools.TensorFlowPerceptron import LTSMNet
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
-# Double DQN with NN switched GA lookahead
+# Double DQN with NN switched extensive lookahead
 
 
-class LookAheadTensorFlowAgent(Agent):
+class ImaginativeNNAgent(Agent):
 
     def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3, **kwargs):
         super().__init__(actions, name="LookAheadTensorFlowAgent", kwargs=kwargs)
@@ -27,11 +27,10 @@ class LookAheadTensorFlowAgent(Agent):
         self.experience_replays = experience_replays
         self.action_queue = deque()
 
-        self.decider = LTSMNet(self.name + "-network1",
-                                            self.features, self.actions, learning_rate=self.alpha)
+        self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
 
         self.thinker = ExtensiveLookAhead(actions=actions)
-        self.load()
+        # self.load()
 
     def load(self):
         self.decider.load()
@@ -40,7 +39,7 @@ class LookAheadTensorFlowAgent(Agent):
         self.decider.save()
 
     def get_action_values(self, s):
-        return self.decider.get_action(s)
+        return self.decider.predict([s])[0]
 
     def get_action(self, s):
         state = np.array(map_state_to_inputs(s)).astype(np.float)
@@ -50,7 +49,7 @@ class LookAheadTensorFlowAgent(Agent):
         return action
 
     def _get_lookahead_actions(self, state):
-        return self.thinker.find_best(translate_state_to_game_board(state), self.decider.get_action)
+        return self.thinker.find_best(translate_state_to_game_board(state), self.get_action_values)
 
     def _get_actions(self, state):
         if self.exploration is not None and random.uniform(0, 1) < self.exploration:
@@ -99,7 +98,7 @@ class LookAheadTensorFlowAgent(Agent):
             if len(episodes) != 0:
                 next_episode = episodes[0]
                 next_action = self._get_e_greedy_action(next_episode.state, exploration=None)
-                next_actions = self.decider.get_action(next_episode.state)
+                next_actions = self.decider.predict([next_episode.state])[0]
                 reward += self.gamma * next_actions[next_action]
 
             ar[episode.action] = reward

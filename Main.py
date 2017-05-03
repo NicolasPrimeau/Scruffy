@@ -3,7 +3,7 @@ import json
 import random
 import Analytics
 
-from agents.LookAheadTensorFlowAgent import LookAheadTensorFlowAgent
+from agents.ImaginativeNNAgent import LookAheadTensorFlowAgent
 
 app = Flask(__name__)
 
