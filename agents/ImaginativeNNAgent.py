@@ -7,7 +7,7 @@ from Game import Game
 from agents.Agent import Agent
 from agents.agent_tools.Episode import Episode
 from agents.agent_tools.ExtensiveLookAhead import ExtensiveLookAhead
-from agents.agent_tools.TensorFlowPerceptron import LTSMNet
+from agents.agent_tools.TensorFlowPerceptron import LTSMNet, BasicNet
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
@@ -16,8 +16,9 @@ from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_gam
 
 class ImaginativeNNAgent(Agent):
 
-    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3, **kwargs):
-        super().__init__(actions, name="LookAheadTensorFlowAgent", kwargs=kwargs)
+    def __init__(self, actions, features, exploration=0.05, alpha=0.1, gamma=0.9, experience_replays=3,
+                 name="LookAheadTensorFlowAgent", **kwargs):
+        super().__init__(actions, name=name, kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
         self.features = features
@@ -28,9 +29,10 @@ class ImaginativeNNAgent(Agent):
         self.action_queue = deque()
 
         self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
+        # self.decider = BasicNet(self.name + "-network1", self.features, self.actions)
 
         self.thinker = ExtensiveLookAhead(actions=actions)
-        # self.load()
+        self.load()
 
     def load(self):
         self.decider.load()

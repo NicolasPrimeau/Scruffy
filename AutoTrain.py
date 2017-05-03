@@ -37,7 +37,8 @@ def main(agent_type, no_print=False):
         sys.stdout = open(os.devnull, 'w')
     global MAX_SCORE, LIMITER, GRID_SIZE, AGENT
     game = Game()
-    agent = agent_type(actions=ACTIONS, features=GRID_SIZE**2,
+    #agent = agent_type(name="BasicNet", actions=ACTIONS, features=GRID_SIZE**2,
+    agent = agent_type(actions=ACTIONS, features=GRID_SIZE ** 2,
                        elligibility_trace=True, game_size=GRID_SIZE, forgetting_factor=0.5)
     AGENT = agent
     game.restart()
