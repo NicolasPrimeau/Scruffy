@@ -14,7 +14,6 @@ class BasicNet:
         if not load:
             self.model = Sequential()
             self.model.add(Dense(self.features, activation="sigmoid", input_shape=(features,)))
-            self.model.add(Dense(self.features, activation="sigmoid"))
             self.model.add(Dense(len(outputs), activation="sigmoid"))
             self.model.compile(loss='mean_squared_error', optimizer='adam')
         else:
@@ -42,7 +41,6 @@ class BasicNet:
             self.model.reset_states()
             print("Sucessfully Loaded Model")
         return True
-
 
 
 class LTSMNet:

@@ -7,7 +7,7 @@ from Game import Game
 from agents.Agent import Agent
 from agents.agent_tools.Episode import Episode
 from agents.agent_tools.ExtensiveLookAhead import ExtensiveLookAhead
-from agents.agent_tools.TensorFlowPerceptron import LTSMNet, BasicNet
+from agents.agent_tools.NeuralNets import LTSMNet, BasicNet
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
@@ -28,8 +28,8 @@ class ImaginativeNNAgent(Agent):
         self.experience_replays = experience_replays
         self.action_queue = deque()
 
-        self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
-        # self.decider = BasicNet(self.name + "-network1", self.features, self.actions)
+        # self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
+        self.decider = BasicNet(self.name + "-network1", self.features, self.actions)
 
         self.thinker = ExtensiveLookAhead(actions=actions)
         self.load()
@@ -72,6 +72,8 @@ class ImaginativeNNAgent(Agent):
         if exploration is None or (exploration is not None and random.uniform(0, 1) > exploration):
             max_val = max(actions)
             action = np.where(actions == max_val)[0]
+            if len(action) == 0:
+                return random.choice(self.actions)
             return [random.choice(action)]
         else:
             return [random.choice(self.actions)]

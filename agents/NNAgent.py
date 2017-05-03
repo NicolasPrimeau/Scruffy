@@ -7,7 +7,7 @@ from Game import Game
 from agents.Agent import Agent
 from agents.agent_tools.Episode import Episode
 from agents.agent_tools.LookAhead import LookAhead
-from agents.agent_tools.TensorFlowPerceptron import LTSMNet
+from agents.agent_tools.NeuralNets import LTSMNet
 
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
