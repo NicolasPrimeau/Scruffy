@@ -7,17 +7,18 @@ from Game import Game
 from agents.Agent import Agent
 from agents.agent_tools.Episode import Episode
 from agents.agent_tools.LookAhead import LookAhead
-from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
+from agents.agent_tools.TensorFlowPerceptron import LTSMNet
+
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
 # Double DQN with NN switched GA lookahead
 
 
-class TensorFlowAgent(Agent):
+class NNAgent(Agent):
 
     def __init__(self, actions, features, exploration=0.1, alpha=0.1, gamma=0.9, experience_replays=3,
-                 double_q_learning_steps=50, **kwargs):
+                 double_q_learning_steps=10, **kwargs):
         super().__init__(actions, name="TensorFlowAgent", kwargs=kwargs)
         self.alpha = alpha
         self.gamma = gamma
@@ -30,14 +31,12 @@ class TensorFlowAgent(Agent):
         self.games = 0
         self.action_queue = deque()
 
-        self.decider = TensorFlowPerceptron(self.name + "-network1",
-                                            self.features, self.actions, learning_rate=self.alpha)
+        self.decider = LTSMNet(self.name + "-network1", self.features, self.actions)
 
-        self.evaluator = TensorFlowPerceptron(self.name + "-network2",
-                                              self.features, self.actions, learning_rate=self.alpha)
+        self.evaluator = LTSMNet(self.name + "-network2", self.features, self.actions)
 
         self.thinker = LookAhead(actions=actions)
-        self.load()
+        # self.load()
 
     def load(self):
         self.decider.load()
@@ -48,7 +47,7 @@ class TensorFlowAgent(Agent):
         self.evaluator.save()
 
     def get_action_values(self, s):
-        return self.decider.get_action(s)
+        return self.decider.predict([s])[0]
 
     def get_action(self, s):
         state = np.array(map_state_to_inputs(s)).astype(np.float)
@@ -102,7 +101,7 @@ class TensorFlowAgent(Agent):
             if len(episodes) != 0:
                 next_episode = episodes[0]
                 next_action = self._get_e_greedy_action(next_episode.state, exploration=None)
-                next_actions = self.evaluator.get_action(next_episode.state)
+                next_actions = self.evaluator.predict([next_episode.state])[0]
                 reward += self.gamma * next_actions[next_action]
 
             ar[episode.action] = reward

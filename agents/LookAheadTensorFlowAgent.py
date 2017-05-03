@@ -7,7 +7,7 @@ from Game import Game
 from agents.Agent import Agent
 from agents.agent_tools.Episode import Episode
 from agents.agent_tools.ExtensiveLookAhead import ExtensiveLookAhead
-from agents.agent_tools.TensorFlowPerceptron import TensorFlowPerceptron
+from agents.agent_tools.TensorFlowPerceptron import LTSMNet
 from agents.agent_tools.utils import map_state_to_inputs, translate_state_to_game_board
 
 
@@ -27,7 +27,7 @@ class LookAheadTensorFlowAgent(Agent):
         self.experience_replays = experience_replays
         self.action_queue = deque()
 
-        self.decider = TensorFlowPerceptron(self.name + "-network1",
+        self.decider = LTSMNet(self.name + "-network1",
                                             self.features, self.actions, learning_rate=self.alpha)
 
         self.thinker = ExtensiveLookAhead(actions=actions)

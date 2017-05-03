@@ -1,58 +1,47 @@
-import tensorflow as tf
+
+from keras.layers import Dense, LSTM
+from keras.models import Sequential
+from sklearn.preprocessing import MinMaxScaler
+import numpy as np
+import pickle
+from keras.models import load_model
 
 
-class TensorFlowPerceptron:
+class LTSMNet:
 
-    def __init__(self, name, features, actions, num_hidden_layers, learning_rate=0.1):
+    def __init__(self, name, features, outputs, load=False):
         self.name = name
-        self.graph = tf.Graph()
-        self.session = tf.Session(graph=self.graph)
-        self.loaded = False
+        self.features = features
+        if not load:
+            self.model = Sequential()
+            self.model.add(LSTM(self.features, input_shape=(1, features)))
+            # self.model.add(LSTM(self.features, input_shape=(1, features)))
+            self.model.add(Dense(len(outputs), activation='relu'))
+            # self.model.add(Dense())
+            self.model.compile(loss='mean_squared_error', optimizer='adam')
+        else:
+            self.load()
+        # self.train(np.array([[[0] * 16]]), np.array([[0,0,0,0]]))
 
-        with self.session.as_default(), self.graph.as_default():
-            self.state_ph = tf.placeholder("float", [None, features])
-            self.actions_ph = tf.placeholder("float", [None, len(actions)])
-            hidden = [self.init_weights([features, features]) for i in range(num_hidden_layers)]
-            w_o = self.init_weights([features, len(actions)])
-            self.network = self.model(self.state_ph, hidden, w_o)
-            loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.network, self.actions_ph))
-            self.train_operation = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss)
+    def forget(self):
+        self.model.reset_states()
 
-    @staticmethod
-    def init_weights(shape):
-        return tf.Variable(tf.random_normal(shape, stddev=0.01))
+    def train(self, train, rewards, verbose=0, epochs=1000):
+        train = np.array([[x] for x in train])
+        rewards = np.array(rewards)
+        self.model.fit(train, rewards, verbose=verbose, epochs=epochs)
 
-    @staticmethod
-    def model(x, w_h, w_o):
-        prev = x
-        for hidden in w_h[1:]:
-            prev = tf.nn.relu(tf.matmul(prev, hidden))
-        return tf.matmul(prev, w_o)
-
-    def load(self):
-        with self.session.as_default(), self.graph.as_default():
-            saver = tf.train.Saver()
-            try:
-                saver.restore(self.session, "agents/models/" + self.name + ".cpkt")
-                print(self.name + " Loaded Successfully")
-            except ValueError:
-                print(self.name + " No Model Found, Initializing Variables Randomly")
-                self.session.run(tf.initialize_all_variables())
-            self.loaded = True
+    def predict(self, states):
+        return self.model.predict(np.array([states]))
 
     def save(self):
-        if self.loaded:
-            with self.session.as_default(), self.graph.as_default():
-                saver = tf.train.Saver()
-                saver.save(self.session, "agents/models/" + self.name + ".cpkt")
-            print(self.name + " Save Successful")
+        self.model.save("data/models/" + self.name, "net.h5")
+        print("Sucessfully Saved Model")
+        return True
 
-    def get_action(self, state):
-        with self.session.as_default(), self.graph.as_default():
-            return self.session.run(self.network, feed_dict={self.state_ph: [state]})[0]
+    def load(self):
+        self.model = load_model("data/models/" + self.name, "net.h5")
+        self.model.reset_states()
+        print("Sucessfully Loaded Model")
+        return True
 
-    def train(self, states, rewards):
-        with self.session.as_default(), self.graph.as_default():
-            self.session.run(self.train_operation, feed_dict={
-                self.state_ph: states,
-                self.actions_ph: rewards})
