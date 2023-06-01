@@ -1,4 +1,7 @@
-# 2048 AI
+# Scruffy
+
+Reinforcement Learning to solve 2048
+
 
 
 
